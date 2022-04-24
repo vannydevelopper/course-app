@@ -1,16 +1,17 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback } from 'react-native'
-import { AntDesign, FontAwesome , MaterialCommunityIcons} from '@expo/vector-icons'; 
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback, ActivityIndicator, useWindowDimensions } from 'react-native'
+import { AntDesign, Feather , MaterialCommunityIcons} from '@expo/vector-icons'; 
 import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setDestinationAction, setPickupAction, setRouteAction, setAutreDestinationAction, setAutrePickupAction } from '../store/actions/appActions';
-import { Input } from 'native-base';
+import { Icon, Input } from 'native-base';
 import { autreDestinationSelector, autrePickupSelector, corporateSelector, destinationSelector, pickupSelector, routeSelector } from '../store/selectors/appSelectors';
 import Header from '../components/Header';
 import useFetch from '../hooks/useFetch';
 import Skeletons from '../components/Skeletons';
+import fetchApi from '../helpers/fetchApi';
 
 
 export default function PickUpScreen() {
@@ -32,8 +33,8 @@ export default function PickUpScreen() {
           const autrePickup = useSelector(autrePickupSelector)
           const autreDestination = useSelector(autreDestinationSelector)
 
-          const [loadingPickup, pickups] = useFetch(`/pick_up/${selectedCorporate?.ID_CORPORATE}?limit=100`)
-          const [loadingDestinations, destinations] = useFetch(`/destination/${selectedCorporate?.ID_CORPORATE}?limit=100`)
+          const [loadingPickup, pickups] = useFetch(`/pick_up/${selectedCorporate?.ID_CORPORATE}?limit=20`)
+          const [loadingDestinations, destinations] = useFetch(`/destination/${selectedCorporate?.ID_CORPORATE}?limit=20`)
 
           const routeName = useSelector(routeSelector)
 
@@ -51,30 +52,85 @@ export default function PickUpScreen() {
                               pickUpRef.current.close()
                               dispatch(setPickupAction(pickUp))
                     }
+                    const [loading, setLoading] = useState(true)
+                    const { height } = useWindowDimensions()
+                    const getDefaultQ = () => {
+                              if(selectedPickup) {
+                                        if(selectedPickup == 'autre') {
+                                                  return ''
+                                        }
+                                        return getPickupLabel()
+                              } else {
+                                        return ''
+                              }
+                    }
+                    const [q, setQ] = useState(getDefaultQ())
+                    const [result, setResult] = useState([])
+                    const [loadingQ, setLoadingQ] = useState(false)
+                    useEffect(() => {
+                              (async () => {
+                                        if(q != '') {
+                                                  const clients = await fetchApi(`/pick_up/${selectedCorporate?.ID_CORPORATE}?limit=20&q=${q}`)
+                                                  setResult(clients)
+                                        }
+                                        setLoadingQ(false)
+                              })()
+                    }, [q])
+                    useEffect(() => {
+                              const timer = setTimeout(() => {
+                                        setLoading(false)
+                              })
+                              return () => {
+                                        clearTimeout(timer)
+                              }
+                    }, [])
+                    const pickupsToShow = q != '' ? result : pickups
+                    if(loading || loadingPickup) {
+                              return <ActivityIndicator animating={true} size="large" color={"#000"} style={{ marginTop: (height-50) / 2}} />
+                    }
                     return (
                               <View style={styles.modalContent}>
-                                        <View style={styles.modalList}>
-                                                  {loadingPickup ? <Skeletons /> :
-                                                            <>
-                                                            <TouchableNativeFeedback onPress={() => onPickUpSelect('autre')}>
-                                                                      <View style={styles.modalItem}>
-                                                                                {selectedPickup == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                <Text numberOfLines={1} style={styles.modalText}>Autres pick up</Text>
-                                                                      </View>
-                                                            </TouchableNativeFeedback>
-                                                            {pickups.map((pickUp, index) => {
-                                                                      return <TouchableNativeFeedback onPress={() => onPickUpSelect(pickUp)} key={index}>
-                                                                                          <View style={styles.modalItem}>
-                                                                                                    {selectedPickup?.PICK_UP_ID == pickUp.PICK_UP_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                    <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                                    <Text numberOfLines={1} style={styles.modalText}>{ pickUp.DESCRIPTION }</Text>
-                                                                                          </View>
-                                                                                </TouchableNativeFeedback>
-                                                            })}
-                                                            </>
-                                                  }
+                                        <View style={{ paddingHorizontal: 15 }}>
+                                        <Input
+                                                  placeholder="Chercher le pickup"
+                                                  size='lg'
+                                                  borderRadius={10}
+                                                  value={q}
+                                                  onChangeText={n => setQ(n)}
+                                                  onChange={() => setLoadingQ(true)}
+                                                  mt={3}
+                                                  backgroundColor="#f1f1f1"
+                                                  InputLeftElement={
+                                                            <Icon
+                                                                      as={<Feather name="search" size={24} color="black" />}
+                                                                      size={5}
+                                                                      ml="2"
+                                                                      color="muted.400"
+                                                            />}
+                                        />
                                         </View>
+                                        {loadingQ ? <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15}}>
+                                                  <Text style={{ color: '#777'}}>Recherche...</Text>
+                                                  <ActivityIndicator animating={true} size="small" color={"#777"} style={{ marginLeft: 5 }} />
+                                        </View> :
+                                        <View style={styles.modalList}>
+                                                  <TouchableNativeFeedback onPress={() => onPickUpSelect('autre')}>
+                                                            <View style={styles.modalItem}>
+                                                                      {selectedPickup == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                      <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                      <Text numberOfLines={1} style={styles.modalText}>Autres pick up</Text>
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                                  {pickupsToShow.map((pickUp, index) => {
+                                                            return <TouchableNativeFeedback onPress={() => onPickUpSelect(pickUp)} key={index}>
+                                                                                <View style={styles.modalItem}>
+                                                                                          {selectedPickup?.PICK_UP_ID == pickUp.PICK_UP_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                          <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                                          <Text numberOfLines={1} style={styles.modalText}>{ pickUp.DESCRIPTION }</Text>
+                                                                                </View>
+                                                                      </TouchableNativeFeedback>
+                                                  })}
+                                        </View>}
                               </View>
                     )
           }
@@ -83,30 +139,85 @@ export default function PickUpScreen() {
                               destinationRef.current.close()
                               dispatch(setDestinationAction(destination))
                     }
+                    const [loading, setLoading] = useState(true)
+                    const { height } = useWindowDimensions()
+                    const getDefaultQ = () => {
+                              if(selectedDestination) {
+                                        if(selectedDestination == 'autre') {
+                                                  return ''
+                                        }
+                                        return getDestinationLabel()
+                              } else {
+                                        return ''
+                              }
+                    }
+                    const [q, setQ] = useState(getDefaultQ())
+                    const [result, setResult] = useState([])
+                    const [loadingQ, setLoadingQ] = useState(false)
+                    useEffect(() => {
+                              (async () => {
+                                        if(q != '') {
+                                                  const clients = await fetchApi(`/destination/${selectedCorporate?.ID_CORPORATE}?limit=20&q=${q}`)
+                                                  setResult(clients)
+                                        }
+                                        setLoadingQ(false)
+                              })()
+                    }, [q])
+                    useEffect(() => {
+                              const timer = setTimeout(() => {
+                                        setLoading(false)
+                              })
+                              return () => {
+                                        clearTimeout(timer)
+                              }
+                    }, [])
+                    const destinationsToShow = q != '' ? result : destinations
+                    if(loading || loadingDestinations) {
+                              return <ActivityIndicator animating={true} size="large" color={"#000"} style={{ marginTop: (height-50) / 2}} />
+                    }
                     return (
                               <View style={styles.modalContent}>
-                                        <View style={styles.modalList}>
-                                                  {loadingDestinations ? <Skeletons /> :
-                                                            <>
-                                                            <TouchableNativeFeedback onPress={() => onDestinationSelect('autre')}>
-                                                                      <View style={styles.modalItem}>
-                                                                                {selectedDestination == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                <Text numberOfLines={1} style={styles.modalText}>Autres destination</Text>
-                                                                      </View>
-                                                            </TouchableNativeFeedback>
-                                                            {destinations.map((destination, index) => {
-                                                                      return <TouchableNativeFeedback onPress={() => onDestinationSelect(destination)} key={index}>
-                                                                                          <View style={styles.modalItem}>
-                                                                                                    {selectedDestination?.DESTINATION_ID == destination.DESTINATION_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                    <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                                    <Text numberOfLines={1} style={styles.modalText}>{ destination?.DESCRIPTION }</Text>
-                                                                                          </View>
-                                                                                </TouchableNativeFeedback>
-                                                            })}
-                                                            </>
-                                                  }
+                                        <View style={{ paddingHorizontal: 15 }}>
+                                        <Input
+                                                  placeholder="Chercher la destination"
+                                                  size='lg'
+                                                  borderRadius={10}
+                                                  value={q}
+                                                  onChangeText={n => setQ(n)}
+                                                  onChange={() => setLoadingQ(true)}
+                                                  mt={3}
+                                                  backgroundColor="#f1f1f1"
+                                                  InputLeftElement={
+                                                            <Icon
+                                                                      as={<Feather name="search" size={24} color="black" />}
+                                                                      size={5}
+                                                                      ml="2"
+                                                                      color="muted.400"
+                                                            />}
+                                        />
                                         </View>
+                                        {loadingQ ? <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15}}>
+                                                  <Text style={{ color: '#777'}}>Recherche...</Text>
+                                                  <ActivityIndicator animating={true} size="small" color={"#777"} style={{ marginLeft: 5 }} />
+                                        </View> :
+                                        <View style={styles.modalList}>
+                                                  <TouchableNativeFeedback onPress={() => onDestinationSelect('autre')}>
+                                                            <View style={styles.modalItem}>
+                                                                      {selectedDestination == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                      <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                      <Text numberOfLines={1} style={styles.modalText}>Autres destination</Text>
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                                  {destinationsToShow.map((destination, index) => {
+                                                            return <TouchableNativeFeedback onPress={() => onDestinationSelect(destination)} key={index}>
+                                                                                <View style={styles.modalItem}>
+                                                                                          {selectedDestination?.DESTINATION_ID == destination.DESTINATION_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                          <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                                          <Text numberOfLines={1} style={styles.modalText}>{ destination?.DESCRIPTION }</Text>
+                                                                                </View>
+                                                                      </TouchableNativeFeedback>
+                                                  })}
+                                        </View>}
                               </View>
                     )
           }

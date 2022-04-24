@@ -1,32 +1,43 @@
 import React from "react";
 import { View, StyleSheet, Text, TouchableNativeFeedback, Image } from 'react-native'
 import { SharedElement } from 'react-navigation-shared-element'
-import { MaterialIcons} from '@expo/vector-icons'; 
+import { MaterialIcons, Feather } from '@expo/vector-icons'; 
 import { useDispatch, useSelector } from "react-redux";
 import { unsetUserAction } from "../store/actions/userActions";
 import { userSelector } from "../store/selectors/userSelector";
+import { resetAction } from "../store/actions/appActions";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Header() {
           const dispatch = useDispatch()
+          const navigation = useNavigation()
           const onExit = () => {
+                    dispatch(resetAction())
                     dispatch(unsetUserAction())
           }
           const user = useSelector(userSelector)
           return (
-                    <SharedElement  id={"header"} style={{height: 80}}>
+                    <SharedElement  id={"header"} style={{height: 10}}>
                               <View style={styles.header}>
                                         <Image source={require('../../assets/wasili.png')} style={{width: 85, height: 60, marginHorizontal: -10, marginVertical: -16, marginLeft: -20}} />
                                         <View style={styles.headerDesc}>
                                                   <Text style={styles.headerTitle} numberOfLines={1}>
                                                             {user ? user?.NOM_CHAFFEUR +' '+ user?.PRENOM_CHAUFFEUR : 'Connexion' }
                                                   </Text>
-                                                  <Text style={styles.headerSecTitle}>Déclaration de course</Text>
+                                                  <Text style={styles.headerSecTitle} numberOfLines={1}>Déclaration de course</Text>
                                         </View>
-                                        <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#c4c4c4')} useForeground={true} onPress={onExit}>
-                                                  <View style={styles.exitButton}>
-                                                            <MaterialIcons name="logout" size={24} color="#777" />
-                                                  </View>
-                                        </TouchableNativeFeedback>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                  <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#c4c4c4')} useForeground={true} onPress={() => navigation.navigate('History')}>
+                                                            <View style={styles.exitButton}>
+                                                                      <Feather name="list" size={24} color="#777" />
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                                  <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#c4c4c4')} useForeground={true} onPress={onExit}>
+                                                            <View style={styles.exitButton}>
+                                                                      <MaterialIcons name="logout" size={24} color="#777" />
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                        </View>
                               </View>
                     </SharedElement>
           )
@@ -60,7 +71,7 @@ const styles = StyleSheet.create({
                     fontSize: 16
           },
           exitButton: {
-                    padding: 15,
+                    padding: 10,
                     borderRadius: 10,
                     overflow: 'hidden'
           }

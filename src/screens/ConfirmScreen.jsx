@@ -28,9 +28,7 @@ export default function ConfirmScreen() {
                                         <DeclarationTypeScreen />
                                         <PickUpScreen />
                                         <TrajetScreen />
-                                        <View style={{paddingBottom: 10}}>
-                                                  <IncidentScreen />
-                                        </View>
+                                        <IncidentScreen />
                               </ScrollView>
                     </View>
           )

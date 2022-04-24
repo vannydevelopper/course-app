@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback, ScrollView, Image } from 'react-native'
-import { AntDesign, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback, ScrollView, Image, ActivityIndicator, useWindowDimensions } from 'react-native'
+import { AntDesign, MaterialIcons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { setAgenceAction, setAnnulerParAction, setAutreClientAction, setClientAction, setCorporateAction, setCovoiturageAction, setDestinationAction, setPickupAction, setRaisonAnnulationAction, setRouteAction, setStickyAction, setTypeAction } from '../store/actions/appActions';
-import { Input } from 'native-base';
+import { Icon, Input } from 'native-base';
 import { agenceSelector, annulerParSelector, autreClientSelector, clientSelector, corporateSelector, covoiturageSelector, raisonAnnulationSelector, routeSelector, stickyHeaderSelector, typeSelector } from '../store/selectors/appSelectors';
 import Header from '../components/Header';
 import useFetch from '../hooks/useFetch';
@@ -50,12 +50,16 @@ export default function DeclarationTypeScreen() {
                     (async () => {
                               if (selectedCorporate) {
                                         setLoadingClients(true)
-                                        const clients = await fetchApi(`/rider_kcb/${selectedCorporate?.ID_CORPORATE}?limit=100`)
+                                        const clients = await fetchApi(`/rider_kcb/${selectedCorporate?.ID_CORPORATE}?limit=20`)
                                         setClients(clients)
                                         setLoadingClients(false)
                               }
                     })()
           }, [selectedCorporate])
+
+          useEffect(() => {
+                    dispatch(setTypeAction(types.find(type => type.TYPE_DECLARATION_ID == 1)))
+          }, [types])
 
           const onAutreClientChange = (autreClient) => {
                     dispatch(setAutreClientAction(autreClient))
@@ -102,63 +106,131 @@ export default function DeclarationTypeScreen() {
                               dispatch(setDestinationAction(null))
                               dispatch(setCorporateAction(corporate))
                     }
+                    const [loading, setLoading] = useState(true)
+                    const { height } = useWindowDimensions()
+                    useEffect(() => {
+                              const timer = setTimeout(() => {
+                                        setLoading(false)
+                              }, 50)
+                              return () => {
+                                        clearTimeout(timer)
+                              }
+                    }, [])
+                    if(loading || loadingCorporates) {
+                              return <View style={{ flex: 1, height: height-50, justifyContent: 'center', alignItems: 'center'}}>
+                                        <ActivityIndicator animating={true} size="large" color={"#000"} />
+                              </View>
+                    }
                     return (
                               <View style={styles.modalContent}>
                                         <View style={styles.modalList}>
-                                                  {loadingCorporates ? <Skeletons /> :
-                                                            <>
-                                                                      {corporates.map((corporate, index) => {
-                                                                                return <TouchableNativeFeedback onPress={() => onCorporateSelect(corporate)} key={index}>
-                                                                                          <View style={styles.modalItem}>
-                                                                                                    {selectedCorporate?.ID_CORPORATE == corporate.ID_CORPORATE ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                              <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                                    <Text numberOfLines={1} style={styles.modalText}>{corporate.DESCRIPTION}</Text>
-                                                                                          </View>
-                                                                                </TouchableNativeFeedback>
-                                                                      })}
-                                                            </>
-                                                  }
+                                                  {corporates.map((corporate, index) => {
+                                                            return <TouchableNativeFeedback onPress={() => onCorporateSelect(corporate)} key={index}>
+                                                                      <View style={styles.modalItem}>
+                                                                                {selectedCorporate?.ID_CORPORATE == corporate.ID_CORPORATE ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                          <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                                <Text numberOfLines={1} style={styles.modalText}>{corporate.DESCRIPTION}</Text>
+                                                                      </View>
+                                                            </TouchableNativeFeedback>
+                                                  })}
                                         </View>
                               </View>
                     )
           }
 
           const ClientsModalize = () => {
+                    const [loading, setLoading] = useState(true)
+                    const { height } = useWindowDimensions()
                     const onClientSelect = (client) => {
                               clientsModRef.current.close()
                               dispatch(setClientAction(client))
                     }
+                    const getDefaultQ = () => {
+                              if(selectedClient) {
+                                        if(selectedClient == 'autre' || selectedClient == 'covoiturage') {
+                                                  return ''
+                                        }
+                                        return getSelectedClientLabel()
+                              } else {
+                                        return ''
+                              }
+                    }
+                    const [q, setQ] = useState(getDefaultQ())
+                    const [result, setResult] = useState([])
+                    const [loadingQ, setLoadingQ] = useState(false)
+                    useEffect(() => {
+                              (async () => {
+                                        if(q != '') {
+                                                  const clients = await fetchApi(`/rider_kcb/${selectedCorporate?.ID_CORPORATE}?limit=20&q=${q}`)
+                                                  setResult(clients)
+                                        }
+                                        setLoadingQ(false)
+                              })()
+                    }, [q])
+                    useEffect(() => {
+                              const timer = setTimeout(() => {
+                                        setLoading(false)
+                              })
+                              return () => {
+                                        clearTimeout(timer)
+                              }
+                    }, [])
+                    const clientsToShow = q != '' ? result : clients
+                    if(loading || loadingClients) {
+                              return <View style={{ flex: 1, height: height-50, justifyContent: 'center', alignItems: 'center'}}>
+                                        <ActivityIndicator animating={true} size="large" color={"#000"} />
+                              </View>
+                    }
                     return (
                               <View style={styles.modalContent}>
-                                        <View style={styles.modalList}>
-                                                  {loadingClients ? <Skeletons /> :
-                                                            <>
-                                                                      <TouchableNativeFeedback onPress={() => onClientSelect('autre')}>
-                                                                                <View style={styles.modalItem}>
-                                                                                          {selectedClient == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                    <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                          <Text numberOfLines={1} style={styles.modalText}>Autre</Text>
-                                                                                </View>
-                                                                      </TouchableNativeFeedback>
-                                                                      <TouchableNativeFeedback onPress={() => onClientSelect('covoiturage')}>
-                                                                                <View style={styles.modalItem}>
-                                                                                          {selectedClient == 'covoiturage' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                    <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                          <Text numberOfLines={1} style={styles.modalText}>Covoiturage</Text>
-                                                                                </View>
-                                                                      </TouchableNativeFeedback>
-                                                                      {clients.map((client, index) => {
-                                                                                return <TouchableNativeFeedback onPress={() => onClientSelect(client)} key={index}>
-                                                                                          <View style={styles.modalItem}>
-                                                                                                    {selectedClient?.RIDE_KCB_ID == client.RIDE_KCB_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                              <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                                    <Text numberOfLines={1} style={styles.modalText}>{client.NOM}</Text>
-                                                                                          </View>
-                                                                                </TouchableNativeFeedback>
-                                                                      })}
-                                                            </>
-                                                  }
+                                        <View style={{ paddingHorizontal: 15 }}>
+                                        <Input
+                                                  placeholder="Chercher le client"
+                                                  size='lg'
+                                                  borderRadius={10}
+                                                  value={q}
+                                                  onChangeText={n => setQ(n)}
+                                                  onChange={() => setLoadingQ(true)}
+                                                  mt={3}
+                                                  backgroundColor="#f1f1f1"
+                                                  InputLeftElement={
+                                                            <Icon
+                                                                      as={<Feather name="search" size={24} color="black" />}
+                                                                      size={5}
+                                                                      ml="2"
+                                                                      color="muted.400"
+                                                            />}
+                                        />
                                         </View>
+                                        {loadingQ ? <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15}}>
+                                                  <Text style={{ color: '#777'}}>Recherche...</Text>
+                                                  <ActivityIndicator animating={true} size="small" color={"#777"} style={{ marginLeft: 5 }} />
+                                        </View>
+                                         :<View style={styles.modalList}>
+                                                  <TouchableNativeFeedback onPress={() => onClientSelect('autre')}>
+                                                            <View style={styles.modalItem}>
+                                                                      {selectedClient == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                      <Text numberOfLines={1} style={styles.modalText}>Autre</Text>
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                                  <TouchableNativeFeedback onPress={() => onClientSelect('covoiturage')}>
+                                                            <View style={styles.modalItem}>
+                                                                      {selectedClient == 'covoiturage' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                      <Text numberOfLines={1} style={styles.modalText}>Covoiturage</Text>
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                                  {clientsToShow.map((client, index) => {
+                                                            return <TouchableNativeFeedback onPress={() => onClientSelect(client)} key={index}>
+                                                                      <View style={styles.modalItem}>
+                                                                                {selectedClient?.RIDE_KCB_ID == client.RIDE_KCB_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                          <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                                <Text numberOfLines={1} style={styles.modalText}>{client.NOM}</Text>
+                                                                      </View>
+                                                            </TouchableNativeFeedback>
+                                                  })}
+                                        </View>}
                               </View>
                     )
           }
@@ -316,7 +388,7 @@ export default function DeclarationTypeScreen() {
                                                             maxHeight={150}
                                                   />
                                         </View>}
-                                        {selectedClient == 'autre' && <View style={styles.formGroup}>
+                                        {/* {selectedClient == 'autre' && <View style={styles.formGroup}>
                                                   <Text style={styles.title}>
                                                             Agence
                                                   </Text>
@@ -326,7 +398,7 @@ export default function DeclarationTypeScreen() {
                                                             </Text>
                                                             <AntDesign name="caretdown" size={16} color="#777" />
                                                   </TouchableOpacity>
-                                        </View>}
+                                        </View>} */}
                               </ScrollView>
                               <Portal>
                                         <Modalize ref={typeRef} adjustToContentHeight handleStyle={{ display: 'none' }} modalStyle={{ borderTopRightRadius: 20, borderTopLeftRadius: 20 }}>
@@ -334,7 +406,7 @@ export default function DeclarationTypeScreen() {
                                         </Modalize>
                               </Portal>
                               <Portal>
-                                        <Modalize ref={corporateRef} adjustToContentHeight handleStyle={{ display: 'none' }} modalStyle={{ borderTopRightRadius: 20, borderTopLeftRadius: 20 }}>
+                                        <Modalize ref={corporateRef} handleStyle={{ display: 'none' }} modalStyle={{ borderTopRightRadius: 20, borderTopLeftRadius: 20 }}>
                                                   <CorporatesModalize />
                                         </Modalize>
                               </Portal>

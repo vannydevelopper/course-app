@@ -21,4 +21,5 @@ export const typeIncidentSelector = ({ app }) => app.typeIncident
 export const autreIncidentSelector = ({ app }) => app.autreIncident
 export const commentaireSelector = ({ app }) => app.commentaire
 export const dateDebutSelector = ({ app }) => app.dateDebut
+export const numeroCourseSelector = ({ app }) => app.numeroCourse
 export const timeSelector = ({ app }) => app.time

@@ -22,6 +22,7 @@ export const SET_AUTRE_INCIDENT = "SET_AUTRE_INCIDENT"
 export const SET_DEBUT = "SET_DEBUT"
 export const SET_TIME = "SET_TIME"
 export const SET_COMMENTAIRE = "SET_COMMENTAIRE"
+export const SET_NUMERO_COURSE = "SET_NUMERO_COURSE"
 export const RESET = "RESET"
 
 const initials = {
@@ -48,12 +49,12 @@ const initials = {
           autreIncident: null,
           commentaire: null,
           dateDebut: null,
-          time: null
+          time: null,
+          numeroCourse: null
 }
 export default function appReducer(app = initials, action) {
           switch (action.type) {
                     case SET_ROUTE:
-                              console.log(action.payload)
                               return {...app, route: action.payload}
                     case SET_LOADING:
                               return {...app, loading: action.payload}
@@ -101,6 +102,8 @@ export default function appReducer(app = initials, action) {
                               return {...app, dateDebut: action.payload}
                     case SET_TIME:
                               return {...app, time: action.payload}
+                    case SET_NUMERO_COURSE: 
+                              return {...app, numeroCourse: action.payload}
                     case RESET:
                               return initials
                     default:

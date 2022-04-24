@@ -1,18 +1,19 @@
-import React, { useCallback, useRef, useState } from 'react'
-import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback, Platform, ScrollView } from 'react-native'
-import { AntDesign, MaterialIcons , MaterialCommunityIcons} from '@expo/vector-icons'; 
+import React, { useCallback, useRef, useState, useEffect } from 'react'
+import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback, Platform, ScrollView, useWindowDimensions, ActivityIndicator } from 'react-native'
+import { AntDesign, Feather , MaterialCommunityIcons} from '@expo/vector-icons'; 
 import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setDestinationAction, setPickupAction, setRouteAction, setAutreDestinationAction, setAutrePickupAction, setIncidentAction, setAutreIncidentAction, setCommentAction, setIncidentTypeAction, setDateDebutAction, setTimeAction } from '../store/actions/appActions';
-import { Input } from 'native-base';
-import { autreDestinationSelector, autreIncidentSelector, autrePickupSelector, commentaireSelector, corporateSelector, dateDebutSelector, destinationSelector, incidentSelector, pickupSelector, routeSelector, timeSelector, typeIncidentSelector } from '../store/selectors/appSelectors';
+import { setDestinationAction, setPickupAction, setRouteAction, setAutreDestinationAction, setAutrePickupAction, setIncidentAction, setAutreIncidentAction, setCommentAction, setIncidentTypeAction, setDateDebutAction, setTimeAction, setNumeroCourseAction } from '../store/actions/appActions';
+import { Icon, Input } from 'native-base';
+import { autreDestinationSelector, autreIncidentSelector, autrePickupSelector, commentaireSelector, corporateSelector, dateDebutSelector, destinationSelector, incidentSelector, numeroCourseSelector, pickupSelector, routeSelector, timeSelector, typeIncidentSelector } from '../store/selectors/appSelectors';
 import Header from '../components/Header';
 import useFetch from '../hooks/useFetch';
 import Skeletons from '../components/Skeletons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment'
+import fetchApi from '../helpers/fetchApi';
 moment.locale('fr')
 
 export default function IncidentScreen() {
@@ -36,8 +37,10 @@ export default function IncidentScreen() {
           const commentaire  = useSelector(commentaireSelector)
           const dateDebut= useSelector(dateDebutSelector)
           const time = useSelector(timeSelector)
+          const numeroCourse = useSelector(numeroCourseSelector)
 
-          const [loadingIncidents, incidents] = useFetch('/type_incident?limit=100')
+
+          const [loadingIncidents, incidents] = useFetch('/type_incident?limit=20')
 
           const routeName = useSelector(routeSelector)
 
@@ -60,36 +63,95 @@ export default function IncidentScreen() {
                     dispatch(setTimeAction(time));
           };
 
+          const onNumeroChange = (numero) => {
+                    dispatch(setNumeroCourseAction(numero))
+          }
+
           const IncidentsTypesModalize = () => {
 
                     const onIncidentSelect = (incident) => {
                               incidentsTypesRef.current.close()
                               dispatch(setIncidentTypeAction(incident))
                     }
+                    const [loading, setLoading] = useState(true)
+                    const { height } = useWindowDimensions()
+                    const getDefaultQ = () => {
+                              if(typeIncident) {
+                                        if(typeIncident == 'autre') {
+                                                  return ''
+                                        }
+                                        return getIncidentLabel()
+                              } else {
+                                        return ''
+                              }
+                    }
+                    const [q, setQ] = useState(getDefaultQ())
+                    const [result, setResult] = useState([])
+                    const [loadingQ, setLoadingQ] = useState(false)
+                    useEffect(() => {
+                              (async () => {
+                                        if(q != '') {
+                                                  const clients = await fetchApi(`/type_incident?limit=20&q=${q}`)
+                                                  setResult(clients)
+                                        }
+                                        setLoadingQ(false)
+                              })()
+                    }, [q])
+                    useEffect(() => {
+                              const timer = setTimeout(() => {
+                                        setLoading(false)
+                              })
+                              return () => {
+                                        clearTimeout(timer)
+                              }
+                    }, [])
+                    const incidentToShow = q != '' ? result : incidents
+                    if(loading || loadingIncidents) {
+                              return <ActivityIndicator animating={true} size="large" color={"#000"} style={{ marginTop: (height-50) / 2}} />
+                    }
                     return (
                               <View style={styles.modalContent}>
-                                        <View style={styles.modalList}>
-                                                  {loadingIncidents ? <Skeletons /> :
-                                                            <>
-                                                            <TouchableNativeFeedback onPress={() => onIncidentSelect('autre')}>
-                                                                      <View style={styles.modalItem}>
-                                                                                {typeIncident == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                <Text numberOfLines={1} style={styles.modalText}>Autre</Text>
-                                                                      </View>
-                                                            </TouchableNativeFeedback>
-                                                            {incidents.map((incident, index) => {
-                                                                      return <TouchableNativeFeedback onPress={() => onIncidentSelect(incident)} key={index}>
-                                                                                          <View style={styles.modalItem}>
-                                                                                                    {typeIncident?.TYPE_INCIDENT_ID == incident.TYPE_INCIDENT_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                                    <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                                                    <Text numberOfLines={2} style={styles.modalText}>{ incident.DESCRIPTION }</Text>
-                                                                                          </View>
-                                                                                </TouchableNativeFeedback>
-                                                            })}
-                                                            </>
-                                                  }
+                                        <View style={{ paddingHorizontal: 15 }}>
+                                        <Input
+                                                  placeholder="Chercher l'incident"
+                                                  size='lg'
+                                                  borderRadius={10}
+                                                  value={q}
+                                                  onChangeText={n => setQ(n)}
+                                                  onChange={() => setLoadingQ(true)}
+                                                  mt={3}
+                                                  backgroundColor="#f1f1f1"
+                                                  InputLeftElement={
+                                                            <Icon
+                                                                      as={<Feather name="search" size={24} color="black" />}
+                                                                      size={5}
+                                                                      ml="2"
+                                                                      color="muted.400"
+                                                            />}
+                                        />
                                         </View>
+                                        {loadingQ ? <View style={{ flexDirection: 'row', alignItems: 'center', margin: 15}}>
+                                                  <Text style={{ color: '#777'}}>Recherche...</Text>
+                                                  <ActivityIndicator animating={true} size="small" color={"#777"} style={{ marginLeft: 5 }} />
+                                        </View> :
+                                        <View style={styles.modalList}>
+                                                  <TouchableNativeFeedback onPress={() => onIncidentSelect('autre')}>
+                                                            <View style={styles.modalItem}>
+                                                                      {typeIncident == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                      <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                      <Text numberOfLines={1} style={styles.modalText}>Autre</Text>
+                                                            </View>
+                                                  </TouchableNativeFeedback>
+                                                  {incidentToShow.map((incident, index) => {
+                                                            return <TouchableNativeFeedback onPress={() => onIncidentSelect(incident)} key={index}>
+                                                                                <View style={styles.modalItem}>
+                                                                                          {typeIncident?.TYPE_INCIDENT_ID == incident.TYPE_INCIDENT_ID ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
+                                                                                          <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                                                                          <Text numberOfLines={2} style={styles.modalText}>{ incident.DESCRIPTION }</Text>
+                                                                                </View>
+                                                                      </TouchableNativeFeedback>
+                                                  })}
+                                        </View>}
                               </View>
                     )
           }
@@ -104,10 +166,10 @@ export default function IncidentScreen() {
           }
           return (
                     <>
-                    <ScrollView style={styles.container}>
+                    <ScrollView style={styles.container} keyboardShouldPersistTaps="always">
                               {/* {(routeName == 'PickUp' || routeName == 'Login') && <Header />} */}
                               <View style={styles.formGroup}>
-                                        <Text style={styles.title}>
+                                        <Text style={{...styles.title, marginLeft: 20}}>
                                                   Y a-t-il un incident à déclarer ?
                                         </Text>
                                         
@@ -160,7 +222,20 @@ export default function IncidentScreen() {
                                                   maxHeight={150}
                                         />
                               </View>}
-                              <View style={{...styles.formGroup, paddingHorizontal: 20}}>
+                              <View style={{ paddingHorizontal: 20}}>
+                                        <Text style={styles.title}>
+                                                  Numéro de la course
+                                        </Text>
+                                        <Input
+                                                  size='lg'
+                                                  value={numeroCourse}
+                                                  onChangeText={onNumeroChange}
+                                                  borderRadius={10}
+                                                  backgroundColor="#f1f1f1"
+                                                  returnKeyType="next"
+                                        />
+                              </View>
+                              {/* <View style={{...styles.formGroup, paddingHorizontal: 20}}>
                                         <Text style={{...styles.title, paddingHorizontal: 0}}>
                                                   Date début de la course
                                         </Text>
@@ -176,14 +251,14 @@ export default function IncidentScreen() {
                                                   </Text>
                                                   <AntDesign name="clockcircleo" size={20} color="#777" />
                                         </TouchableOpacity>
-                              </View>
+                              </View> */}
                     </ScrollView>
                     <Portal>
                               <Modalize ref={incidentsTypesRef} handleStyle={{ display: 'none' }} modalStyle={{borderTopRightRadius: 20, borderTopLeftRadius: 20}}>
                                         <IncidentsTypesModalize />
                               </Modalize>
                     </Portal>
-                    {showCalendar && (
+                    {/* {showCalendar && (
                               <DateTimePicker
                                         testID="dateTimePicker"
                                         value={dateDebut || new Date()}
@@ -202,7 +277,7 @@ export default function IncidentScreen() {
                                         display="default"
                                         onChange={onChangeTime}
                               />
-                    )}
+                    )} */}
                     </>
           )
 }
@@ -218,7 +293,6 @@ const styles = StyleSheet.create({
                     fontSize: 16,
                     marginVertical: 10,
                     marginTop: 30,
-                    paddingHorizontal: 20
           },
           
           openModalize: {

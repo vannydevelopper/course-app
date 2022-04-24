@@ -28,6 +28,7 @@ import {
           incidentSelector,
           kilometreSelector,
           montantSelector,
+          numeroCourseSelector,
           pickupSelector, 
           raisonAnnulationSelector, 
           routeSelector,
@@ -46,6 +47,7 @@ import Header from '../components/Header';
 import IncidentScreen from '../screens/IncidentScreen';
 import { resetAction, setLoadingAction } from '../store/actions/appActions';
 import fetchApi from '../helpers/fetchApi';
+import HistoryScreen from '../screens/HistoryScreen';
 
 
 // const Stack = createStackNavigator()
@@ -83,6 +85,7 @@ export default function RootNavigator() {
           const commentaire  = useSelector(commentaireSelector)
           const dateDebut= useSelector(dateDebutSelector)
           const time = useSelector(timeSelector)
+          const numeroCourse = useSelector(numeroCourseSelector)
           const toast = useToast()
 
           const onNextPress = async () => {
@@ -128,7 +131,7 @@ export default function RootNavigator() {
                                                             RIDER_ID: user.DRIVER_ID,
                                                             CLIENT_ID: getClientId(),
                                                             AUTRE_CLIENT: selectedClient == 'autre' ? autreClient : null,
-                                                            AGENCE_ID: selectedClient == 'autre' ? selectedAgence.AGENCE_ID : null,
+                                                            // AGENCE_ID: selectedClient == 'autre' ? selectedAgence.AGENCE_ID : null,
                                                             PICK_UP_ID: selectedPickup != 'autre' ? selectedPickup.PICK_UP_ID : selectedPickup,
                                                             AUTRE_PICKUP: selectedPickup == 'autre' ? autrePickup : null,
                                                             DESTINATION_ID: selectedDestination != 'autre' ? selectedDestination.DESTINATION_ID : selectedDestination,
@@ -143,11 +146,14 @@ export default function RootNavigator() {
                                                             ANNULE_PAR: selectedType.TYPE_DECLARATION_ID == 2 ? annulerPar : null,
                                                             TIME_SPENT: duree,
                                                             KM_SPENT: kilometre,
+                                                            
                                                             MONTANT: montant,
-                                                            DATE_DEBUT_COURSE: moment(dateDebut).set({
+                                                            NUMERO_COURSE: numeroCourse,
+                                                            DATE_DEBUT_COURSE: moment().format('YYYY/MM/DD HH:mm:ss'),
+                                                            /* DATE_DEBUT_COURSE: moment(dateDebut).set({
                                                                       hour: moment(time).get('hour'),
                                                                       minute: moment(time).get('minute')
-                                                            }).format('YYYY/MM/DD HH:mm:ss')
+                                                            }).format('YYYY/MM/DD HH:mm:ss') */
                                                   }),
                                                   headers: {
                                                             'Content-Type': 'application/json'
@@ -187,7 +193,7 @@ export default function RootNavigator() {
                                                   return true
                                         } else {
                                                   if(selectedClient == 'autre') {
-                                                            if(autreClient && autreClient != '' && selectedAgence && passAnnuler) {
+                                                            if(autreClient && autreClient != '' /* && selectedAgence */ && passAnnuler) {
                                                                       return true
                                                             }
                                                   } else if(selectedClient == 'covoiturage' && passAnnuler) {
@@ -210,15 +216,16 @@ export default function RootNavigator() {
                     }
 
                     const passIncident = () => {
-                              const datesChecked = dateDebut && time
+                              // const datesChecked = dateDebut && time
+                              const numeroChecked = numeroCourse
                               if(selectedIncident == true) {
                                         if(typeIncident == 'autre') {
-                                                  return autreIncident && autreIncident != '' && commentaire && commentaire != "" && datesChecked
+                                                  return autreIncident && autreIncident != '' && commentaire && commentaire != "" && numeroChecked
                                         } else {
-                                                  return typeIncident && commentaire && commentaire != "" && datesChecked
+                                                  return typeIncident && commentaire && commentaire != "" && numeroChecked
                                         }
                               } else {
-                                        return datesChecked
+                                        return numeroChecked
                               }
                     }
                     if(route == 'DeclarationType') {
@@ -268,9 +275,13 @@ export default function RootNavigator() {
                                                   contentStyle: { backgroundColor: "#40404040" },
                                                   cardStyleInterpolator: CardStyleInterpolators.forScaleFromCenterAndroid
                                         }} />
+                                        <Stack.Screen name="History" component={HistoryScreen} sharedElements={route => {
+                                                  return ['header']
+                                        }} options={{ headerShown: true, title: 'Courses déclarées', headerStyle: { elevation: 0, backgroundColor: '#F3F7F7'} }}
+                                        />
                                         </>}
                               </Stack.Navigator>
-                              {route != "Success" && route != 'Login' && <View style={styles.bottomNavigations}>
+                              {route != "Success" && route != 'Login' && route != 'History' && <View style={styles.bottomNavigations}>
                                         {route == 'DeclarationType' ?
                                         <View style={{opacity: 0.5}}>
                                                   <View style={styles.navigationButton}>
