@@ -17,7 +17,7 @@ export default function Header() {
           }
           const user = useSelector(userSelector)
           return (
-                    <SharedElement  id={"header"} style={{height: 10}}>
+                    <SharedElement  id={"header"} style={{ height: 80 }}>
                               <View style={styles.header}>
                                         <Image source={require('../../assets/wasili.png')} style={{width: 85, height: 60, marginHorizontal: -10, marginVertical: -16, marginLeft: -20}} />
                                         <View style={styles.headerDesc}>

@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, TouchableNativeFeedback, Image } from 'react-native'
 import { NavigationContainer, useNavigation,  } from '@react-navigation/native';
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
@@ -8,6 +8,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import PickUpScreen from '../screens/PickUpScreen';
 import TrajetScreen from '../screens/TrajetScreen';
 import { useDispatch, useSelector } from 'react-redux';
+import * as Location from 'expo-location';
 import { SharedElement, createSharedElementStackNavigator } from 'react-navigation-shared-element'
 import moment from 'moment'
 moment.locale('fr')
@@ -59,6 +60,20 @@ export default function RootNavigator() {
           const user = useSelector(userSelector)
           const dispatch = useDispatch()
           const stickyHeader = useSelector(stickyHeaderSelector)
+          const [location, setLocation] = useState(null)
+
+          useEffect(() => {
+                    (async () => {
+                              let { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+                              if (locationStatus !== 'granted') {
+                                        console.log('Permission to access location was denied');
+                                        setLocation(false)
+                                        return;
+                              }
+                              var location = await Location.getCurrentPositionAsync({});
+                              setLocation(location)
+                    })()
+          }, [])
 
           const selectedType = useSelector(typeSelector)
           const selectedCorporate = useSelector(corporateSelector)
@@ -149,6 +164,8 @@ export default function RootNavigator() {
                                                             
                                                             MONTANT: montant,
                                                             NUMERO_COURSE: numeroCourse,
+                                                            LATITUDE: location.coords.latitude,
+                                                            LONGITUDE: location.coords.longitude,
                                                             DATE_DEBUT_COURSE: moment().format('YYYY/MM/DD HH:mm:ss'),
                                                             /* DATE_DEBUT_COURSE: moment(dateDebut).set({
                                                                       hour: moment(time).get('hour'),
