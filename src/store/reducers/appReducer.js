@@ -50,7 +50,7 @@ const initials = {
           commentaire: null,
           dateDebut: null,
           time: null,
-          numeroCourse: null
+          numeroCourse: ''
 }
 export default function appReducer(app = initials, action) {
           switch (action.type) {

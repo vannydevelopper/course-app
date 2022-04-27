@@ -166,11 +166,11 @@ export default function RootNavigator() {
                                                             NUMERO_COURSE: numeroCourse,
                                                             LATITUDE: location.coords.latitude,
                                                             LONGITUDE: location.coords.longitude,
-                                                            DATE_DEBUT_COURSE: moment().format('YYYY/MM/DD HH:mm:ss'),
-                                                            /* DATE_DEBUT_COURSE: moment(dateDebut).set({
+                                                            // DATE_DEBUT_COURSE: moment().format('YYYY/MM/DD HH:mm:ss'),
+                                                            DATE_DEBUT_COURSE: moment(dateDebut).set({
                                                                       hour: moment(time).get('hour'),
                                                                       minute: moment(time).get('minute')
-                                                            }).format('YYYY/MM/DD HH:mm:ss') */
+                                                            }).format('YYYY/MM/DD HH:mm:ss')
                                                   }),
                                                   headers: {
                                                             'Content-Type': 'application/json'
@@ -233,16 +233,16 @@ export default function RootNavigator() {
                     }
 
                     const passIncident = () => {
-                              // const datesChecked = dateDebut && time
+                              const datesChecked = dateDebut && time
                               const numeroChecked = numeroCourse
                               if(selectedIncident == true) {
                                         if(typeIncident == 'autre') {
-                                                  return autreIncident && autreIncident != '' && commentaire && commentaire != "" && numeroChecked
+                                                  return autreIncident && autreIncident != '' && commentaire && commentaire != "" && datesChecked && numeroChecked
                                         } else {
-                                                  return typeIncident && commentaire && commentaire != "" && numeroChecked
+                                                  return typeIncident && commentaire && commentaire != "" && datesChecked && numeroChecked
                                         }
                               } else {
-                                        return numeroChecked
+                                        return datesChecked && numeroChecked
                               }
                     }
                     if(route == 'DeclarationType') {

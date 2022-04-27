@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react'
 import { View, StyleSheet, Text, TouchableOpacity, TouchableNativeFeedback, Platform, ScrollView, useWindowDimensions, ActivityIndicator } from 'react-native'
-import { AntDesign, Feather , MaterialCommunityIcons} from '@expo/vector-icons'; 
+import { AntDesign, Feather , MaterialIcons, MaterialCommunityIcons} from '@expo/vector-icons'; 
 import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -226,16 +226,22 @@ export default function IncidentScreen() {
                                         <Text style={styles.title}>
                                                   Numéro de la course
                                         </Text>
-                                        <Input
-                                                  size='lg'
-                                                  value={numeroCourse}
-                                                  onChangeText={onNumeroChange}
-                                                  borderRadius={10}
-                                                  backgroundColor="#f1f1f1"
-                                                  returnKeyType="next"
-                                        />
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                                  <Text style={{ fontSize: 20, color: '#777' }}>#</Text>
+                                                  <Input
+                                                            size='lg'
+                                                            value={numeroCourse}
+                                                            onChangeText={onNumeroChange}
+                                                            borderRadius={10}
+                                                            keyboardType="numeric"
+                                                            backgroundColor="#f1f1f1"
+                                                            returnKeyType="next"
+                                                            marginLeft={1}
+                                                            flex={1}
+                                                  />
+                                        </View>
                               </View>
-                              {/* <View style={{...styles.formGroup, paddingHorizontal: 20}}>
+                              <View style={{...styles.formGroup, paddingHorizontal: 20}}>
                                         <Text style={{...styles.title, paddingHorizontal: 0}}>
                                                   Date début de la course
                                         </Text>
@@ -251,14 +257,14 @@ export default function IncidentScreen() {
                                                   </Text>
                                                   <AntDesign name="clockcircleo" size={20} color="#777" />
                                         </TouchableOpacity>
-                              </View> */}
+                              </View>
                     </ScrollView>
                     <Portal>
                               <Modalize ref={incidentsTypesRef} handleStyle={{ display: 'none' }} modalStyle={{borderTopRightRadius: 20, borderTopLeftRadius: 20}}>
                                         <IncidentsTypesModalize />
                               </Modalize>
                     </Portal>
-                    {/* {showCalendar && (
+                    {showCalendar && (
                               <DateTimePicker
                                         testID="dateTimePicker"
                                         value={dateDebut || new Date()}
@@ -266,6 +272,7 @@ export default function IncidentScreen() {
                                         is24Hour={true}
                                         display="default"
                                         onChange={onChangeDateDebut}
+                                        maximumDate={new Date()}
                               />
                     )}
                     {showTime && (
@@ -277,7 +284,7 @@ export default function IncidentScreen() {
                                         display="default"
                                         onChange={onChangeTime}
                               />
-                    )} */}
+                    )}
                     </>
           )
 }
