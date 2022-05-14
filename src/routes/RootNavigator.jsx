@@ -14,7 +14,9 @@ import moment from 'moment'
 moment.locale('fr')
 import { 
           agenceSelector,
+          annulerDateSelector,
           annulerParSelector,
+          annulerTimeSelector,
           autreClientSelector,
           autreDestinationSelector,
           autreIncidentSelector,
@@ -24,6 +26,8 @@ import {
           corporateSelector,
           covoiturageSelector,
           dateDebutSelector,
+          demandeDateSelector,
+          demandeTimeSelector,
           destinationSelector,
           dureeSelector,
           incidentSelector,
@@ -32,6 +36,7 @@ import {
           numeroCourseSelector,
           pickupSelector, 
           raisonAnnulationSelector, 
+          raisonSelector, 
           routeSelector,
           stickyHeaderSelector,
           timeSelector,
@@ -49,6 +54,7 @@ import IncidentScreen from '../screens/IncidentScreen';
 import { resetAction, setLoadingAction } from '../store/actions/appActions';
 import fetchApi from '../helpers/fetchApi';
 import HistoryScreen from '../screens/HistoryScreen';
+import AnnulerScreen from '../screens/AnnulerScreen';
 
 
 // const Stack = createStackNavigator()
@@ -83,6 +89,11 @@ export default function RootNavigator() {
           const covoiturage = useSelector(covoiturageSelector)
           const annulerPar = useSelector(annulerParSelector)
           const raisonAnnulation = useSelector(raisonAnnulationSelector)
+          const selectedRaison = useSelector(raisonSelector)
+          const demandeDate = useSelector(demandeDateSelector)
+          const demandeTime = useSelector(demandeTimeSelector)
+          const annulerDate = useSelector(annulerDateSelector)
+          const annulerTime = useSelector(annulerTimeSelector)
 
           const selectedPickup = useSelector(pickupSelector)
           const selectedDestination = useSelector(destinationSelector)
@@ -105,9 +116,19 @@ export default function RootNavigator() {
 
           const onNextPress = async () => {
                     if(route == 'DeclarationType') {
+                              if(selectedType?.TYPE_DECLARATION_ID == 2) {
+                                        navigation.navigate('Annuler')
+                              } else {
+                                        navigation.navigate('PickUp')
+                              }
+                    } else if(route == 'Annuler') {
                               navigation.navigate('PickUp')
                     } else if(route == 'PickUp') {
-                              navigation.navigate('Trajet')
+                              if(selectedType?.TYPE_DECLARATION_ID == 2) {
+                                        navigation.navigate('Confirm')
+                              } else {
+                                        navigation.navigate('Trajet')
+                              }
                     } else if(route == 'Trajet') {
                               navigation.navigate('Incident')
                     } else if(route == 'Incident') {
@@ -157,20 +178,32 @@ export default function RootNavigator() {
                                                             COMMENTAIRES: selectedIncident == true ? commentaire : null,
                                                             NOMS_COVOITURAGES: selectedClient == 'covoiturage' ? covoiturage : null,
                                                             // COMMENTAIRE_COVOITURAGE: selectedClient == 'covoiturage' ? covoiturage : null,
+                                                            ID_RAISON_ANNULATION: selectedType.TYPE_DECLARATION_ID == 2 ? (selectedRaison != 'autre' ? selectedRaison.ID_RAISON_ANNULATION : selectedRaison) : null,
+                                                            DATE_DEMANDE_COURSE: selectedType.TYPE_DECLARATION_ID == 2 ?
+                                                            (moment(demandeDate).set({
+                                                                      hour: moment(demandeTime).get('hour'),
+                                                                      minute: moment(demandeTime).get('minute')
+                                                            }).format('YYYY/MM/DD HH:mm:ss')) : null,
+                                                            DATE_ANNULATION_COURSE: selectedType.TYPE_DECLARATION_ID == 2 ?
+                                                            (moment(annulerDate).set({
+                                                                      hour: moment(annulerTime).get('hour'),
+                                                                      minute: moment(annulerTime).get('minute')
+                                                            }).format('YYYY/MM/DD HH:mm:ss')) : null,
                                                             RAISON_ANNULATION: selectedType.TYPE_DECLARATION_ID == 2 ? raisonAnnulation : null,
                                                             ANNULE_PAR: selectedType.TYPE_DECLARATION_ID == 2 ? annulerPar : null,
                                                             TIME_SPENT: duree,
                                                             KM_SPENT: kilometre,
                                                             
                                                             MONTANT: montant,
-                                                            NUMERO_COURSE: numeroCourse,
+                                                            NUMERO_COURSE: selectedType.TYPE_DECLARATION_ID == 2 ? null : numeroCourse,
                                                             LATITUDE: location.coords.latitude,
                                                             LONGITUDE: location.coords.longitude,
                                                             // DATE_DEBUT_COURSE: moment().format('YYYY/MM/DD HH:mm:ss'),
-                                                            DATE_DEBUT_COURSE: moment(dateDebut).set({
+                                                            DATE_DEBUT_COURSE:selectedType.TYPE_DECLARATION_ID == 2 ? null :
+                                                            ( moment(dateDebut).set({
                                                                       hour: moment(time).get('hour'),
                                                                       minute: moment(time).get('minute')
-                                                            }).format('YYYY/MM/DD HH:mm:ss')
+                                                            }).format('YYYY/MM/DD HH:mm:ss'))
                                                   }),
                                                   headers: {
                                                             'Content-Type': 'application/json'
@@ -204,22 +237,27 @@ export default function RootNavigator() {
           const canNext = () => {
 
                     const passDecType = () => {
-                              const passAnnuler = selectedType?.TYPE_DECLARATION_ID == 2 ? (annulerPar && raisonAnnulation && raisonAnnulation != '') : true
                               if(selectedType && selectedCorporate) {
-                                        if(selectedClient && selectedClient != 'autre' && selectedClient != 'covoiturage' && passAnnuler) {
+                                        if(selectedClient && selectedClient != 'autre' && selectedClient != 'covoiturage') {
                                                   return true
                                         } else {
                                                   if(selectedClient == 'autre') {
-                                                            if(autreClient && autreClient != '' /* && selectedAgence */ && passAnnuler) {
+                                                            if(autreClient && autreClient != '' /* && selectedAgence */) {
                                                                       return true
                                                             }
-                                                  } else if(selectedClient == 'covoiturage' && passAnnuler) {
+                                                  } else if(selectedClient == 'covoiturage') {
                                                             if(covoiturage && covoiturage != '') {
                                                                       return true
                                                             }
                                                   }
                                         }
                               } 
+                    }
+
+                    const passAnnuler = () => {
+                              const passDates = demandeDate && demandeTime && annulerDate && annulerTime
+                              const passAnnulerRaison = selectedRaison == 'autre' ? (annulerPar && raisonAnnulation && raisonAnnulation != '') : selectedRaison
+                              return passAnnulerRaison && passDates
                     }
 
                     const passPickUps = () => {
@@ -247,6 +285,8 @@ export default function RootNavigator() {
                     }
                     if(route == 'DeclarationType') {
                               return passDecType()
+                    } else if (route == 'Annuler') {
+                              return passAnnuler()
                     } else if (route == 'PickUp') {
                               return passPickUps()
                     } else if(route == 'Trajet') {
@@ -254,6 +294,9 @@ export default function RootNavigator() {
                     } else if(route == 'Incident') {
                               return passIncident()
                     } else if(route == 'Confirm') {
+                              if(selectedType?.TYPE_DECLARATION_ID == 2) {
+                                        return  passDecType() && passPickUps()
+                              }
                               return passDecType() && passPickUps() && passTrajet() && passIncident()
                     }
                     return false
@@ -271,8 +314,10 @@ export default function RootNavigator() {
                                         <>
                                         <Stack.Screen name="DeclarationType" component={DeclarationTypeScreen} sharedElements={route => {
                                                   return ['header']
-                                        }}
-                                        />
+                                        }} />
+                                        <Stack.Screen name="Annuler" component={AnnulerScreen} sharedElements={route => {
+                                                  return ['header']
+                                        }} />
                                         <Stack.Screen name="PickUp" component={PickUpScreen} sharedElements={route => {
                                                   return ['header']
                                         }} />

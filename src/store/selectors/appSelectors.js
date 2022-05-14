@@ -8,6 +8,11 @@ export const autreClientSelector = ({ app }) => app.autreClient
 export const covoiturageSelector = ({ app }) => app.covoiturage
 export const annulerParSelector = ({ app }) => app.annulePar
 export const raisonAnnulationSelector = ({ app }) => app.raisonAnnulation
+export const raisonSelector = ({ app }) => app.raison
+export const demandeDateSelector = ({ app }) => app.demandeDate
+export const demandeTimeSelector = ({ app }) => app.demandeTime
+export const annulerDateSelector = ({ app }) => app.annulerDate
+export const annulerTimeSelector = ({ app }) => app.annulerTime
 export const pickupSelector = ({ app }) => app.pickup
 export const agenceSelector = ({ app }) => app.agence
 export const autrePickupSelector = ({ app }) => app.autrePickUp

@@ -5,9 +5,9 @@ import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { setAgenceAction, setAnnulerParAction, setAutreClientAction, setClientAction, setCorporateAction, setCovoiturageAction, setDestinationAction, setPickupAction, setRaisonAnnulationAction, setRouteAction, setStickyAction, setTypeAction } from '../store/actions/appActions';
+import { setAgenceAction, setAnnulerParAction, setAutreClientAction, setClientAction, setCorporateAction, setCovoiturageAction, setDestinationAction, setPickupAction, setRaisonAction, setRaisonAnnulationAction, setRouteAction, setStickyAction, setTypeAction } from '../store/actions/appActions';
 import { Icon, Input } from 'native-base';
-import { agenceSelector, annulerParSelector, autreClientSelector, clientSelector, corporateSelector, covoiturageSelector, raisonAnnulationSelector, routeSelector, stickyHeaderSelector, typeSelector } from '../store/selectors/appSelectors';
+import { agenceSelector, annulerParSelector, autreClientSelector, clientSelector, corporateSelector, covoiturageSelector, raisonAnnulationSelector, raisonSelector, routeSelector, stickyHeaderSelector, typeSelector } from '../store/selectors/appSelectors';
 import Header from '../components/Header';
 import useFetch from '../hooks/useFetch';
 import Skeletons from '../components/Skeletons';
@@ -19,7 +19,6 @@ export default function DeclarationTypeScreen() {
           const corporateRef = useRef(null)
           const clientsModRef = useRef(null)
           const agenceModRef = useRef(null)
-          const annulerParRef = useRef(null)
 
           const dispatch = useDispatch()
           const route = useRoute()
@@ -32,7 +31,7 @@ export default function DeclarationTypeScreen() {
           const autreClient = useSelector(autreClientSelector)
           const covoiturage = useSelector(covoiturageSelector)
           const annulerPar = useSelector(annulerParSelector)
-          const raisonAnnulation = useSelector(raisonAnnulationSelector)
+          const selectedRaison = useSelector(raisonSelector)
 
           const routeName = useSelector(routeSelector)
           
@@ -44,8 +43,10 @@ export default function DeclarationTypeScreen() {
           const [loadingTypes, types] = useFetch('/type_declaration') // get types
           const [loadingCorporates, corporates] = useFetch('/corporate?limit=100') // get corporates
           const [loadingAgances, agences] = useFetch('/declarations/agences?limit=100')
+
           const [loadingClients, setLoadingClients] = useState(false)
           const [clients, setClients] = useState([])
+          
           useEffect(() => {
                     (async () => {
                               if (selectedCorporate) {
@@ -58,7 +59,9 @@ export default function DeclarationTypeScreen() {
           }, [selectedCorporate])
 
           useEffect(() => {
-                    dispatch(setTypeAction(types.find(type => type.TYPE_DECLARATION_ID == 1)))
+                    if(selectedType == null) {
+                              dispatch(setTypeAction(types.find(type => type.TYPE_DECLARATION_ID == 1)))
+                    }
           }, [types])
 
           const onAutreClientChange = (autreClient) => {
@@ -67,10 +70,6 @@ export default function DeclarationTypeScreen() {
 
           const onCovoiturageChange = (cov) => {
                     dispatch(setCovoiturageAction(cov))
-          }
-
-          const onRaisonChange = (raison) => {
-                    dispatch(setRaisonAnnulationAction(raison))
           }
 
           const TypesModalize = () => {
@@ -260,32 +259,6 @@ export default function DeclarationTypeScreen() {
                     )
           }
 
-          const AnnulerParModalize = () => {
-                    const onAnnuleSelect = (per) => {
-                              annulerParRef.current.close()
-                              dispatch(setAnnulerParAction(per))
-                    }
-                    return (
-                              <View style={styles.modalContent}>
-                                        <View style={styles.modalList}>
-                                                  <TouchableNativeFeedback onPress={() => onAnnuleSelect(1)}>
-                                                            <View style={styles.modalItem}>
-                                                                      {annulerPar == 1 ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                      <Text numberOfLines={1} style={styles.modalText}>Employé</Text>
-                                                            </View>
-                                                  </TouchableNativeFeedback>
-                                                  <TouchableNativeFeedback onPress={() => onAnnuleSelect(2)}>
-                                                            <View style={styles.modalItem}>
-                                                                      {annulerPar == 2 ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
-                                                                                <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
-                                                                      <Text numberOfLines={1} style={styles.modalText}>Driver</Text>
-                                                            </View>
-                                                  </TouchableNativeFeedback>
-                                        </View>
-                              </View>
-                    )
-          }
 
           const getSelectedClientLabel = () => {
                     if (selectedClient?.NOM) {
@@ -298,14 +271,6 @@ export default function DeclarationTypeScreen() {
                     return 'Sélectionner la réponse'
           }
 
-          const getAnnulerLabel = () => {
-                    if (annulerPar == 1) {
-                              return 'Employé'
-                    } else if (annulerPar == 2) {
-                              return 'Driver'
-                    }
-                    return "Sélectionner la réponse"
-          }
           return (
                     <View style={styles.container}>
                               {(routeName == 'DeclarationType' || routeName == 'Login') && <Header />}
@@ -365,29 +330,6 @@ export default function DeclarationTypeScreen() {
                                                             maxHeight={150}
                                                   />}
                                         </View>}
-
-                                        {selectedType && selectedType?.TYPE_DECLARATION_ID == 2 && <View style={styles.formGroup}>
-                                                  <Text style={styles.title}>
-                                                            Annulée par
-                                                  </Text>
-                                                  <TouchableOpacity onPress={() => annulerParRef.current.open()} style={styles.openModalize}>
-                                                            <Text style={styles.openModalizeLabel} numberOfLines={1}>
-                                                                      {getAnnulerLabel()}
-                                                            </Text>
-                                                            <AntDesign name="caretdown" size={16} color="#777" />
-                                                  </TouchableOpacity>
-                                                  <Input
-                                                            placeholder="Raison de l'annulation"
-                                                            size='lg'
-                                                            borderRadius={10}
-                                                            value={raisonAnnulation}
-                                                            onChangeText={onRaisonChange}
-                                                            mt={3}
-                                                            backgroundColor="#f1f1f1"
-                                                            multiline
-                                                            maxHeight={150}
-                                                  />
-                                        </View>}
                                         {/* {selectedClient == 'autre' && <View style={styles.formGroup}>
                                                   <Text style={styles.title}>
                                                             Agence
@@ -418,11 +360,6 @@ export default function DeclarationTypeScreen() {
                               <Portal>
                                         <Modalize ref={agenceModRef} adjustToContentHeight handleStyle={{ display: 'none' }} modalStyle={{ borderTopRightRadius: 20, borderTopLeftRadius: 20 }}>
                                                   <AgencesModalize />
-                                        </Modalize>
-                              </Portal>
-                              <Portal>
-                                        <Modalize ref={annulerParRef} adjustToContentHeight handleStyle={{ display: 'none' }} modalStyle={{ borderTopRightRadius: 20, borderTopLeftRadius: 20 }}>
-                                                  <AnnulerParModalize />
                                         </Modalize>
                               </Portal>
                     </View>

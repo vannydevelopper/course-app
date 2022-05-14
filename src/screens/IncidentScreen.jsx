@@ -61,6 +61,7 @@ export default function IncidentScreen() {
           const onChangeTime = (event, time) => {
                     setShowTime(Platform.OS === "ios");
                     dispatch(setTimeAction(time));
+                    console.log(time)
           };
 
           const onNumeroChange = (numero) => {
@@ -283,6 +284,7 @@ export default function IncidentScreen() {
                                         is24Hour={true}
                                         display="default"
                                         onChange={onChangeTime}
+                                        maximumDate={new Date()}
                               />
                     )}
                     </>

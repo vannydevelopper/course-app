@@ -1,7 +1,7 @@
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { Button, Input, useToast } from 'native-base'
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableWithoutFeedback } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLoadingAction, setRouteAction } from '../store/actions/appActions'
 import { setUserAction } from '../store/actions/userActions'
@@ -60,7 +60,7 @@ export default function LoginScreen() {
                               <View style={styles.content}>
                                         <SharedElement id={"header"} style={{height: 80}}>
                                                   <View style={styles.header}>
-                                                            <Image source={require('../../assets/wasili.png')} style={{width: 85, height: 60, marginHorizontal: -10, marginVertical: -16, marginLeft: -20}} />
+                                                            <Image source={require('../../assets/wasili-icon.png')} style={{width: 100, height: 60, marginHorizontal: -20, marginVertical: 0, marginTop: 20, marginLeft: -30}} />
                                                             <View style={styles.headerDesc}>
                                                                       <Text style={styles.headerTitle}>
                                                                                 {user ? user?.NOM_CHAFFEUR + user?.PRENOM_CHAUFFEUR : 'Connexion' }
@@ -92,6 +92,15 @@ export default function LoginScreen() {
                                                   <Button isDisabled={numero == ''} isLoading={loading} borderRadius={20} size="lg" onPress={onLogin} background={"#58A0EB"}>
                                                             Se connecter
                                                   </Button>
+                                                  <Text style={styles.toRegisterText}>
+                                                            Nouveau chauffeur? 
+                                                            <TouchableWithoutFeedback>
+                                                                                <>
+                                                                                <Text>{' '}</Text>
+                                                                                <Text style={styles.registerText} >Créer un compte</Text>
+                                                                                </>
+                                                            </TouchableWithoutFeedback>
+                                                  </Text>
                                         </View>
                               </View>
                     </View>
@@ -121,9 +130,10 @@ const styles = StyleSheet.create({
                     flexDirection: 'row',
                     alignItems: 'center',
                     height: '100%',
+                    maxHeight: 60,
                     resizeMode: 'contain',
                     paddingHorizontal: 20,
-                    paddingVertical: 10
+                    paddingVertical: 10,
           },
           headerDesc: {
                     flex :1,
@@ -144,5 +154,23 @@ const styles = StyleSheet.create({
                     fontWeight: 'bold',
                     opacity: 0.5,
                     marginBottom: 10
+          },
+          toRegisterText: {
+                    fontWeight: 'bold',
+                    color: '#777',
+                    marginTop: 20,
+                    fontSize: 15,
+          },
+          registerBtn: {
+                    marginLeft: 5,
+                    borderBottomColor: '#58A0EB',
+                    borderBottomWidth: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 1
+          },
+          registerText: {
+                    color: '#58A0EB',
+                    textDecorationLine: 'underline'
           }
 })

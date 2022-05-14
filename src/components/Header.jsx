@@ -19,7 +19,7 @@ export default function Header() {
           return (
                     <SharedElement  id={"header"} style={{ height: 80 }}>
                               <View style={styles.header}>
-                                        <Image source={require('../../assets/wasili.png')} style={{width: 85, height: 60, marginHorizontal: -10, marginVertical: -16, marginLeft: -20}} />
+                                        <Image source={require('../../assets/wasili-icon.png')} style={{width: 100, height: 60, marginHorizontal: -20, marginVertical: 0, marginTop: 20, marginLeft: -30}} />
                                         <View style={styles.headerDesc}>
                                                   <Text style={styles.headerTitle} numberOfLines={1}>
                                                             {user ? user?.NOM_CHAFFEUR +' '+ user?.PRENOM_CHAUFFEUR : 'Connexion' }
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
                     flexDirection: 'row',
                     alignItems: 'center',
                     height: '100%',
+                    maxHeight: 60,
                     resizeMode: 'contain',
                     backgroundColor: '#fff',
                     width: '100%',

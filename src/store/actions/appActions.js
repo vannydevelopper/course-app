@@ -1,4 +1,4 @@
-import { RESET, SET_AGENCE, SET_ANNULE_PAR, SET_AUTRE_CLIENT, SET_AUTRE_DESTINATION, SET_AUTRE_INCIDENT, SET_AUTRE_PICKUP, SET_CLIENT, SET_COMMENTAIRE, SET_CORPORATE, SET_COVOITURAGE, SET_DEBUT, SET_DESTINATION, SET_DUREE, SET_INCIDENT, SET_INCIDENT_TYPE, SET_KILOMETRE, SET_LOADING, SET_MONTANT, SET_NUMERO_COURSE, SET_PICKUP, SET_RAISON_ANNULATION, SET_ROUTE, SET_STICKY_HEADER, SET_TIME, SET_TYPE } from "../reducers/appReducer"
+import { RESET, SET_AGENCE, SET_ANNULER_DATE, SET_ANNULER_DEMANDE_DATE, SET_ANNULER_DEMANDE_TIME, SET_ANNULER_TIME, SET_ANNULE_PAR, SET_AUTRE_CLIENT, SET_AUTRE_DESTINATION, SET_AUTRE_INCIDENT, SET_AUTRE_PICKUP, SET_CLIENT, SET_COMMENTAIRE, SET_CORPORATE, SET_COVOITURAGE, SET_DEBUT, SET_DESTINATION, SET_DUREE, SET_INCIDENT, SET_INCIDENT_TYPE, SET_KILOMETRE, SET_LOADING, SET_MONTANT, SET_NUMERO_COURSE, SET_PICKUP, SET_RAISON, SET_RAISON_ANNULATION, SET_ROUTE, SET_STICKY_HEADER, SET_TIME, SET_TYPE } from "../reducers/appReducer"
 
 export const setRouteAction = ( route ) => {
           return {
@@ -67,6 +67,41 @@ export const setRaisonAnnulationAction = ( raison ) => {
           return {
                     type: SET_RAISON_ANNULATION,
                     payload: raison
+          }
+}
+
+export const setRaisonAction = ( raison ) => {
+          return {
+                    type: SET_RAISON,
+                    payload: raison
+          }
+}
+
+export const setDemandeDate = ( date ) => {
+          return {
+                    type: SET_ANNULER_DEMANDE_DATE,
+                    payload: date
+          }
+}
+
+export const setDemandeTime = ( time ) => {
+          return {
+                    type: SET_ANNULER_DEMANDE_TIME,
+                    payload: time
+          }
+}
+
+export const setAnnulerDate = ( date ) => {
+          return {
+                    type: SET_ANNULER_DATE,
+                    payload: date
+          }
+}
+
+export const setAnnulerTime = ( time ) => {
+          return {
+                    type: SET_ANNULER_TIME,
+                    payload: time
           }
 }
 

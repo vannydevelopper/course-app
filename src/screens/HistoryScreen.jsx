@@ -20,7 +20,7 @@ const Course = ({ course, index }) => {
                               <View style={styles.courseDesc}>
                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                                                   <Text style={{...styles.courseTitle, width: '50%', color: '#000', opacity: 0.8, fontWeight: 'bold' }}>{ course.CORPORATE_DESCRIPTION }</Text>
-                                                  <Text style={styles.courseTitle}>{ moment(course.DATE_DEBUT_COURSE).format('DD-MM-YYYY H:mm')}</Text>
+                                                  <Text style={styles.courseTitle}>{ moment(course.DATE_INSERTION).format('DD-MM-YYYY H:mm')}</Text>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                                                   <Entypo name="location-pin" size={20} color="blue" />

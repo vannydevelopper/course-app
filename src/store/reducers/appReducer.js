@@ -8,6 +8,11 @@ export const SET_AUTRE_CLIENT = "SET_AUTRE_CLIENT"
 export const SET_COVOITURAGE  = "SET_COVOITURAGE"
 export const SET_ANNULE_PAR = "SET_ANNULE_PAR"
 export const SET_RAISON_ANNULATION = "SET_RAISON_ANNULATION"
+export const SET_RAISON = "SET_RAISON"
+export const SET_ANNULER_DEMANDE_DATE = "SET_ANNULER_DEMANDE_DATE"
+export const SET_ANNULER_DEMANDE_TIME = "SET_ANNULER_DEMANDE_TIME"
+export const SET_ANNULER_DATE = "SET_ANNULER_DATE"
+export const SET_ANNULER_TIME = "SET_ANNULER_TIME"
 export const SET_AGENCE = "SET_AGENCE"
 export const SET_PICKUP = "SET_PICKUP"
 export const SET_AUTRE_PICKUP = "SET_AUTRE_PICKUP"
@@ -36,6 +41,11 @@ const initials = {
           covoiturage: null,
           annulePar: null,
           raisonAnnulation: null,
+          raison: null,
+          demandeDate: null,
+          demandeTime: null,
+          annulerDate: null,
+          annulerTime: null,
           agence: null,
           pickup: null,
           autrePickUp: null,
@@ -74,6 +84,16 @@ export default function appReducer(app = initials, action) {
                               return {...app, annulePar: action.payload}
                     case SET_RAISON_ANNULATION:
                               return {...app, raisonAnnulation: action.payload}
+                    case SET_RAISON:
+                              return {...app, raison: action.payload}
+                    case SET_ANNULER_DEMANDE_DATE:
+                              return {...app, demandeDate: action.payload}
+                    case SET_ANNULER_DEMANDE_TIME:
+                              return {...app, demandeTime: action.payload}
+                    case SET_ANNULER_DATE:
+                              return {...app, annulerDate: action.payload}
+                    case SET_ANNULER_TIME:
+                              return {...app, annulerTime: action.payload}
                     case SET_AGENCE:
                               return {...app, agence: action.payload}
                     case SET_PICKUP:
