@@ -10,6 +10,9 @@ import fetchApi from '../helpers/fetchApi'
 import Loading from '../components/Loading'
 import { loadingSelector } from '../store/selectors/appSelectors'
 import { userSelector } from '../store/selectors/userSelector'
+import PendingInfo from '../components/PendingInfo'
+import PasswordModal from '../components/PasswordModal'
+import CreatePasswordModal from '../components/CreatePasswordModal'
 
 export default function LoginScreen() {
           const [numero, setNumero] = useState('')
@@ -23,6 +26,12 @@ export default function LoginScreen() {
           const [error, setError] = useState(null)
           const toast = useToast()
           const user = useSelector(userSelector)
+
+          const [showPendingInfo, setShowPendingInfo] = useState(false)
+          const [showPasswordModal, setShowPasswordModal] = useState(false)
+          const [showCreatePasswordModal, setShowCreatePasswordModal] = useState(false)
+
+
           const onLogin = async () => {
                     if(numero == '') {
                               return false
@@ -38,7 +47,14 @@ export default function LoginScreen() {
                                         }
                               })
                               if(driver?.DRIVER_ID) {
-                                        dispatch(setUserAction(driver))
+                                        if(!driver?.IS_CONFIRMED) {
+                                                  setShowPendingInfo(true)
+                                        } else if(driver?.IS_CONFIRMED && !driver.MOT_DE_PASSE) {
+                                                  setShowCreatePasswordModal(true)
+                                        } else if(driver?.IS_CONFIRMED && driver.MOT_DE_PASSE) {
+                                                  setShowPasswordModal(true)
+                                        }
+                                        // dispatch(setUserAction(driver))
                               } else {
                                         setError('Chauffeur inconnue')
                               }
@@ -57,6 +73,10 @@ export default function LoginScreen() {
           }
           return (
                     <View style={styles.container}>
+                              {loading && <Loading simple />}
+                              {showPendingInfo && <PendingInfo isLoging onClose={() => setShowPendingInfo(false)} />}
+                              {showPasswordModal && <PasswordModal onClose={() => setShowPasswordModal(false)} numero={numero} />}
+                              {showCreatePasswordModal && <CreatePasswordModal onClose={() => setShowCreatePasswordModal(false)} numero={numero} />}
                               <View style={styles.content}>
                                         <SharedElement id={"header"} style={{height: 80}}>
                                                   <View style={styles.header}>
@@ -89,18 +109,17 @@ export default function LoginScreen() {
                                                             onSubmitEditing={onLogin}
                                                   />
                                                   <Text style={styles.errorText}>{ error }</Text>
-                                                  <Button isDisabled={numero == ''} isLoading={loading} borderRadius={20} size="lg" onPress={onLogin} background={"#58A0EB"}>
+                                                  <Button isDisabled={numero == ''} borderRadius={20} size="lg" onPress={onLogin} background={"#58A0EB"}>
                                                             Se connecter
                                                   </Button>
-                                                  <Text style={styles.toRegisterText}>
-                                                            Nouveau chauffeur? 
-                                                            <TouchableWithoutFeedback>
-                                                                                <>
-                                                                                <Text>{' '}</Text>
-                                                                                <Text style={styles.registerText} >Créer un compte</Text>
-                                                                                </>
+                                                  <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+                                                            <Text style={styles.toRegisterText}>
+                                                                      Nouveau chauffeur? 
+                                                            </Text>
+                                                            <TouchableWithoutFeedback onPress={() => navigation.navigate('Register') }>
+                                                                      <Text style={styles.registerText} >Créer un compte</Text>
                                                             </TouchableWithoutFeedback>
-                                                  </Text>
+                                                  </View>
                                         </View>
                               </View>
                     </View>
@@ -115,6 +134,7 @@ const styles = StyleSheet.create({
                     backgroundColor: '#fff'
           },
           content: {
+                    width: '100%'
                     // paddingHorizontal: 20
           },
           title: {
@@ -156,10 +176,8 @@ const styles = StyleSheet.create({
                     marginBottom: 10
           },
           toRegisterText: {
-                    fontWeight: 'bold',
-                    color: '#777',
-                    marginTop: 20,
                     fontSize: 15,
+                    color: '#777',
           },
           registerBtn: {
                     marginLeft: 5,
@@ -171,6 +189,7 @@ const styles = StyleSheet.create({
           },
           registerText: {
                     color: '#58A0EB',
-                    textDecorationLine: 'underline'
+                    textDecorationLine: 'underline',
+                    marginLeft: 5
           }
 })

@@ -47,6 +47,7 @@ import ConfirmScreen from '../screens/ConfirmScreen';
 import { Button, useToast } from 'native-base';
 import SuccessModal from '../screens/SuccessModal';
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 import { userSelector } from '../store/selectors/userSelector';
 import { unsetUserAction } from '../store/actions/userActions';
 import Header from '../components/Header';
@@ -310,7 +311,13 @@ export default function RootNavigator() {
                                         gestureDirection: 'horizontal',
                                         headerShown: false
                               }}>
-                                        {!user ? <Stack.Screen name="Login" component={LoginScreen} /> :
+                                        {!user ? 
+                                        <>
+                                                  <Stack.Screen name="Login" component={LoginScreen} />
+                                                  <Stack.Screen name="Register" component={RegisterScreen} options={{
+                                                            cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
+                                                  }} />
+                                        </> :
                                         <>
                                         <Stack.Screen name="DeclarationType" component={DeclarationTypeScreen} sharedElements={route => {
                                                   return ['header']

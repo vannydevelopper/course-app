@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, BackHandler } from 'react-native'
 import { Portal } from 'react-native-portalize'
 import LottieView from 'lottie-react-native';
 
-export default function Loading() {
+export default function Loading({ simple }) {
           useEffect(() => {
                     const handler = BackHandler.addEventListener('hardwareBackPress', () => {
                               return true
@@ -15,11 +15,11 @@ export default function Loading() {
           return (
                     <Portal>
                               <View style={styles.loadingContainer}>
-                                        <View style={styles.content}>
+                                        <View style={{...styles.content, backgroundColor: simple ? 'transparent' : '#fff', elevation: simple ? 0 : 5}}>
                                                   <LottieView style={{width: 150, height: 150}} source={require('../../assets/loading.json')} autoPlay speed={1.5} />
-                                                  <Text style={styles.modalTitle}>
+                                                  {!simple && <Text style={styles.modalTitle}>
                                                             Veuillez patienter...
-                                                  </Text>
+                                                  </Text>}
                                         </View>
                               </View>
                     </Portal>

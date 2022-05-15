@@ -24,18 +24,19 @@ const Course = ({ course, index }) => {
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                                                   <Entypo name="location-pin" size={20} color="blue" />
-                                                  <Text style={styles.courseTitle}>{ course.PICKUP }</Text>
+                                                  <Text style={styles.courseTitle} numberOfLines={1}>{ course.PICKUP }</Text>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                                                   <Entypo name="location-pin" size={20} color="green" />
-                                                  <Text style={styles.courseTitle}>{ course.DESTINATION }</Text>
+                                                  <Text style={styles.courseTitle} numberOfLines={1}>{ course.DESTINATION }</Text>
                                         </View>
                                         <View style={{ flexDirection: 'row', alignItems: 'center'}}>
                                                   <AntDesign name="user" size={20} color="black" />
-                                                  <Text style={styles.courseTitle}>{ course.NOM }</Text>
+                                                  <Text style={styles.courseTitle} numberOfLines={1}>{ course.NOM }</Text>
                                         </View>
                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-                                                  <Text style={{...styles.courseTitle, color: '#000', fontSize: 18, opacity: 0.8}}>{ course.MONTANT.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") } Fbu</Text>
+                                                  {course.TYPE_DECLARATION_ID == 2 ? <Text style={{...styles.courseTitle, color: '#000', fontSize: 18, opacity: 0.8}}>Course annulée</Text> :
+                                                  <Text style={{...styles.courseTitle, color: '#000', fontSize: 18, opacity: 0.8}}>{ course.MONTANT?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") } Fbu</Text>}
                                                   {course.STATUS_PAYE == 1 && <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                                             <Text style={styles.courseTitle}>payé</Text>
                                                             <AntDesign name="checkcircle" size={20} color="green" style={{marginLeft: 5}} />
@@ -85,12 +86,11 @@ export default function HistoryScreen() {
 
           useEffect(() => {
                     (async () => {
-                              if(selectedCorporate.ID_CORPORATE) {
-                                        setInitialLoading(true)
-                                        const histories = await fetchApi(`/declarations/${user.DRIVER_ID}?corporate=${selectedCorporate.ID_CORPORATE}&month=${selectedMonth+1}&year=${selectedYear}`)
-                                        setHistories(histories)
-                                        setInitialLoading(false)
-                              }
+                              const url = `/declarations/${user.DRIVER_ID}?corporate=${selectedCorporate.ID_CORPORATE}&month=${selectedMonth+1}&year=${selectedYear}`
+                              setInitialLoading(true)
+                              const histories = await fetchApi(url)
+                              setHistories(histories)
+                              setInitialLoading(false)
                     })()
           }, [selectedCorporate, selectedMonth, selectedYear])
 
@@ -185,7 +185,7 @@ export default function HistoryScreen() {
 
           var total = 0
           histories.map(history => {
-                    total += parseFloat(history.MONTANT)
+                    total += parseFloat(history.MONTANT ? history.MONTANT : 0)
           })
           return (
                     <View style={styles.container}>
@@ -193,7 +193,7 @@ export default function HistoryScreen() {
                                         <View style={styles.header}>
                                                   <TouchableOpacity onPress={() => corporateRef.current.open()} style={styles.openModalize}>
                                                             <Text style={styles.openModalizeLabel} numberOfLines={1}>
-                                                                      {selectedCorporate.DESCRIPTION}
+                                                                      {selectedCorporate.DESCRIPTION || 'Corporate'}
                                                             </Text>
                                                             <AntDesign style={{ marginLeft: 5 }} name="caretdown" size={16} color="#777" />
                                                   </TouchableOpacity>
@@ -277,7 +277,8 @@ const styles = StyleSheet.create({
           },
           courseTitle: {
                     color: '#777',
-                    fontSize: 14
+                    fontSize: 14,
+                    maxWidth: '95%'
           },
           courseList: {
                     flex: 1,
