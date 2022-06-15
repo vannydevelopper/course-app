@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "293308090611",
+    "project_id": "flowing-gasket-350413",
+    "storage_bucket": "flowing-gasket-350413.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293308090611:android:d610b79e4fe0cac8378f86",
+        "android_client_info": {
+          "package_name": "com.dukizwe.course"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293308090611-mu1edu7vrsmjefplfdoe7s1brmvl6hdh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTbXxDAsAaMEBRMKhPQF-Oh53b1t8qtks"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "293308090611-mu1edu7vrsmjefplfdoe7s1brmvl6hdh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

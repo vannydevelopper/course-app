@@ -56,6 +56,8 @@ import { resetAction, setLoadingAction } from '../store/actions/appActions';
 import fetchApi from '../helpers/fetchApi';
 import HistoryScreen from '../screens/HistoryScreen';
 import AnnulerScreen from '../screens/AnnulerScreen';
+import NotificationScreen from '../screens/NotificationScreen';
+import NotificationsDetailScreen from '../screens/NotificationsDetailScreen';
 
 
 // const Stack = createStackNavigator()
@@ -348,9 +350,17 @@ export default function RootNavigator() {
                                                   return ['header']
                                         }} options={{ headerShown: true, title: 'Courses déclarées', headerStyle: { elevation: 0, backgroundColor: '#F3F7F7'} }}
                                         />
+                                        <Stack.Screen name="Notifications" component={NotificationScreen} sharedElements={route => {
+                                                  return ['header']
+                                        }} options={{ headerShown: true, title: 'Notifications courses', headerStyle: { elevation: 0, backgroundColor: '#F3F7F7'} }}
+                                        />
+                                        <Stack.Screen name="NotificationsDetail" component={NotificationsDetailScreen} sharedElements={route => {
+                                                  return ['header']
+                                        }} options={{ headerShown: true, title: 'Course', headerStyle: { elevation: 0, backgroundColor: '#F3F7F7'} }}
+                                        />
                                         </>}
                               </Stack.Navigator>
-                              {route != "Success" && route != 'Login' && route != 'History' && <View style={styles.bottomNavigations}>
+                              {route != "Success" && route != 'Login' && route != 'History' && route != 'Notifications' && <View style={styles.bottomNavigations}>
                                         {route == 'DeclarationType' ?
                                         <View style={{opacity: 0.5}}>
                                                   <View style={styles.navigationButton}>

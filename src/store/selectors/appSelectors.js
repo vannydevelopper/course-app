@@ -2,6 +2,7 @@ export const routeSelector = ({ app }) => app.route
 export const loadingSelector = ({ app }) => app.loading
 export const stickyHeaderSelector = ({ app }) => app.stickyHeader
 export const typeSelector = ({ app }) => app.type
+export const pushNotificatioTokenSelector = ({ app }) => app.pushNotificationToken
 export const corporateSelector = ({ app }) => app.corporate
 export const clientSelector = ({ app }) => app.client
 export const autreClientSelector = ({ app }) => app.autreClient

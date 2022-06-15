@@ -29,11 +29,13 @@ export const SET_TIME = "SET_TIME"
 export const SET_COMMENTAIRE = "SET_COMMENTAIRE"
 export const SET_NUMERO_COURSE = "SET_NUMERO_COURSE"
 export const RESET = "RESET"
+export const SET_PUSH_NOTIFICATION_TOKEN = 'SET_PUSH_NOTIFICATION_TOKEN'
 
 const initials = {
           route: 'DeclarationType',
           loading: false,
           stickyHeader: false,
+          pushNotificationToken: null,
           type: null,
           corporate: null,
           client: null,
@@ -70,6 +72,8 @@ export default function appReducer(app = initials, action) {
                               return {...app, loading: action.payload}
                     case SET_STICKY_HEADER:
                               return {...app, stickyHeader: action.payload}
+                    case SET_PUSH_NOTIFICATION_TOKEN:
+                              return {...app, pushNotificationToken: action.payload}
                     case SET_TYPE:
                               return {...app, type: action.payload}
                     case SET_CORPORATE:

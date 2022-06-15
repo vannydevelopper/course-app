@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet, BackHandler, TouchableNativeFeedback } from 'react-native'
+import { View, Text, StyleSheet, BackHandler, TouchableNativeFeedback, Platform } from 'react-native'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Portal } from 'react-native-portalize'
 import LottieView from 'lottie-react-native';
 import { AntDesign } from '@expo/vector-icons'; 
 import { FormControl, Input, useToast, WarningOutlineIcon } from 'native-base';
 import Loading from './Loading';
 import fetchApi from '../helpers/fetchApi';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUserAction } from '../store/actions/userActions';
 import { useForm } from '../hooks/useForm';
 import { useFormErrorsHandle } from '../hooks/useFormErrorsHandle';
+import { pushNotificatioTokenSelector } from '../store/selectors/appSelectors';
 
 export default function CreatePasswordModal({ onClose, numero }) {
           const [data, handleChange, setValue, resetForm] = useForm({
@@ -40,6 +42,7 @@ export default function CreatePasswordModal({ onClose, numero }) {
           const toast = useToast()
           const dispatch = useDispatch()
           const passwordConfirmRef = useRef(null)
+          const pushNotificatonToken = useSelector(pushNotificatioTokenSelector)
 
           const onSubmit = async () => {
                     setLoading(true)
@@ -48,15 +51,18 @@ export default function CreatePasswordModal({ onClose, numero }) {
                                         method: 'POST',
                                         body: JSON.stringify({
                                                   TELEPHONE: numero.toString(),
-                                                  MOT_DE_PASSE: data.password
+                                                  MOT_DE_PASSE: data.password,
+                                                  PUSH_NOTIFICATION_TOKEN: pushNotificatonToken,
+                                                  DEVICE: Platform.OS === 'ios' ? 1 : 0
                                         }),
                                         headers: {
                                                   'Content-Type': 'application/json'
                                         }
                               })
                               if(driver.success) {
-                                        onClose()
+                                        await AsyncStorage.setItem('user', JSON.stringify(driver))
                                         dispatch(setUserAction(driver))
+                                        onClose()
                               } else {
                                         toast.show({
                                                   title: "Problème de connexion",
