@@ -7,11 +7,13 @@ import { unsetUserAction } from "../store/actions/userActions";
 import { userSelector } from "../store/selectors/userSelector";
 import { resetAction } from "../store/actions/appActions";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Header() {
           const dispatch = useDispatch()
           const navigation = useNavigation()
-          const onExit = () => {
+          const onExit = async () => {
+                    await AsyncStorage.removeItem('user')
                     dispatch(resetAction())
                     dispatch(unsetUserAction())
           }
@@ -19,7 +21,7 @@ export default function Header() {
           return (
                     <SharedElement  id={"header"} style={{ height: 80 }}>
                               <View style={styles.header}>
-                                        <Image source={require('../../assets/wasili-icon.png')} style={{width: 100, height: 60, marginHorizontal: -20, marginVertical: 0, marginTop: 20, marginLeft: -30}} />
+                                        <Image source={require('../../assets/wasili-icon.png')} style={{width: 100, height: 60, marginHorizontal: -20, marginVertical: 0, marginTop: 0, marginLeft: -30}} />
                                         <View style={styles.headerDesc}>
                                                   <Text style={styles.headerTitle} numberOfLines={1}>
                                                             {user ? user?.NOM_CHAFFEUR +' '+ user?.PRENOM_CHAUFFEUR : 'Connexion' }
@@ -27,6 +29,11 @@ export default function Header() {
                                                   <Text style={styles.headerSecTitle} numberOfLines={1}>Déclaration de course</Text>
                                         </View>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                  {user?.ID_DRIVER_KCB && <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#c4c4c4')} useForeground={true} onPress={() => navigation.navigate('Notifications')}>
+                                                            <View style={styles.exitButton}>
+                                                                      <Feather name="bell" size={24} color="#777" />
+                                                            </View>
+                                                  </TouchableNativeFeedback>}
                                                   <TouchableNativeFeedback background={TouchableNativeFeedback.Ripple('#c4c4c4')} useForeground={true} onPress={() => navigation.navigate('History')}>
                                                             <View style={styles.exitButton}>
                                                                       <Feather name="list" size={24} color="#777" />

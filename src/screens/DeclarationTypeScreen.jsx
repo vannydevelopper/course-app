@@ -206,6 +206,7 @@ export default function DeclarationTypeScreen() {
                                                   <ActivityIndicator animating={true} size="small" color={"#777"} style={{ marginLeft: 5 }} />
                                         </View>
                                          :<View style={styles.modalList}>
+                                                  {selectedCorporate.ID_CORPORATE != 31 && <>
                                                   <TouchableNativeFeedback onPress={() => onClientSelect('autre')}>
                                                             <View style={styles.modalItem}>
                                                                       {selectedClient == 'autre' ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" /> :
@@ -220,6 +221,7 @@ export default function DeclarationTypeScreen() {
                                                                       <Text numberOfLines={1} style={styles.modalText}>Covoiturage</Text>
                                                             </View>
                                                   </TouchableNativeFeedback>
+                                                  </>}
                                                   {clientsToShow.map((client, index) => {
                                                             return <TouchableNativeFeedback onPress={() => onClientSelect(client)} key={index}>
                                                                       <View style={styles.modalItem}>

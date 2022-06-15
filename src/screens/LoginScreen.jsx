@@ -8,7 +8,7 @@ import { setUserAction } from '../store/actions/userActions'
 import { SharedElement } from 'react-navigation-shared-element'
 import fetchApi from '../helpers/fetchApi'
 import Loading from '../components/Loading'
-import { loadingSelector } from '../store/selectors/appSelectors'
+import { loadingSelector, pushNotificatioTokenSelector } from '../store/selectors/appSelectors'
 import { userSelector } from '../store/selectors/userSelector'
 import PendingInfo from '../components/PendingInfo'
 import PasswordModal from '../components/PasswordModal'
@@ -41,7 +41,9 @@ export default function LoginScreen() {
                     try {
                               const driver = await fetchApi('/declarations/driver/login', {
                                         method: 'POST',
-                                        body: JSON.stringify({TELEPHONE: numero.toString()}),
+                                        body: JSON.stringify({
+                                                  TELEPHONE: numero.toString(),
+                                        }),
                                         headers: {
                                                   'Content-Type': 'application/json'
                                         }
@@ -80,7 +82,7 @@ export default function LoginScreen() {
                               <View style={styles.content}>
                                         <SharedElement id={"header"} style={{height: 80}}>
                                                   <View style={styles.header}>
-                                                            <Image source={require('../../assets/wasili-icon.png')} style={{width: 100, height: 60, marginHorizontal: -20, marginVertical: 0, marginTop: 20, marginLeft: -30}} />
+                                                            <Image source={require('../../assets/wasili-icon.png')} style={{width: 100, height: 60, marginHorizontal: -20, marginVertical: 0, marginTop: 0, marginLeft: -30}} />
                                                             <View style={styles.headerDesc}>
                                                                       <Text style={styles.headerTitle}>
                                                                                 {user ? user?.NOM_CHAFFEUR + user?.PRENOM_CHAUFFEUR : 'Connexion' }
