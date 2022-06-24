@@ -5,9 +5,9 @@ import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { setAgenceAction, setAnnulerParAction, setAutreClientAction, setClientAction, setCorporateAction, setCovoiturageAction, setDestinationAction, setPickupAction, setRaisonAction, setRaisonAnnulationAction, setRouteAction, setStickyAction, setTypeAction } from '../store/actions/appActions';
+import { setAgenceAction, setAnnulerParAction, setAutreClientAction, setAutreNumeroAction, setClientAction, setCorporateAction, setCovoiturageAction, setDestinationAction, setPickupAction, setRaisonAction, setRaisonAnnulationAction, setRouteAction, setStickyAction, setTypeAction } from '../store/actions/appActions';
 import { Icon, Input } from 'native-base';
-import { agenceSelector, annulerParSelector, autreClientSelector, clientSelector, corporateSelector, covoiturageSelector, raisonAnnulationSelector, raisonSelector, routeSelector, stickyHeaderSelector, typeSelector } from '../store/selectors/appSelectors';
+import { agenceSelector, annulerParSelector, autreClientSelector, autreNumeroSelector, clientSelector, corporateSelector, covoiturageSelector, raisonAnnulationSelector, raisonSelector, routeSelector, stickyHeaderSelector, typeSelector } from '../store/selectors/appSelectors';
 import Header from '../components/Header';
 import useFetch from '../hooks/useFetch';
 import Skeletons from '../components/Skeletons';
@@ -32,6 +32,7 @@ export default function DeclarationTypeScreen() {
           const covoiturage = useSelector(covoiturageSelector)
           const annulerPar = useSelector(annulerParSelector)
           const selectedRaison = useSelector(raisonSelector)
+          const autreNumero = useSelector(autreNumeroSelector)
 
           const routeName = useSelector(routeSelector)
           
@@ -66,6 +67,10 @@ export default function DeclarationTypeScreen() {
 
           const onAutreClientChange = (autreClient) => {
                     dispatch(setAutreClientAction(autreClient))
+          }
+
+          const onAutreNumeroChange = (autreNumero) => {
+               dispatch(setAutreNumeroAction(autreNumero))
           }
 
           const onCovoiturageChange = (cov) => {
@@ -319,6 +324,20 @@ export default function DeclarationTypeScreen() {
                                                             backgroundColor="#f1f1f1"
                                                             multiline
                                                             maxHeight={150}
+                                                  />}
+
+                                                 { selectedClient == 'autre' && <Input
+                                                       placeholder="Numero de l'employé"
+                                                       size="lg"
+                                                       borderRadius={10}
+                                                       // value={autreNumero}
+                                                       // onChangeText={onAutreNumeroChange}
+                                                       keyboardType="number-pad"
+                                                       py={3}
+                                                       mt={3}
+                                                       backgroundColor="#f1f1f1"
+                                                       multiline
+                                                       maxHeight={150}
                                                   />}
                                                   {selectedClient == 'covoiturage' && <Input
                                                             placeholder="Précisez leurs noms"
