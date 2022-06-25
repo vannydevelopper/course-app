@@ -5,9 +5,9 @@ import { Portal } from 'react-native-portalize';
 import { Modalize } from 'react-native-modalize';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { setDestinationAction, setPickupAction, setRouteAction, setAutreDestinationAction, setAutrePickupAction } from '../store/actions/appActions';
+import { setDestinationAction, setPickupAction, setRouteAction, setAutreDestinationAction, setAutrePickupAction, setModeAction } from '../store/actions/appActions';
 import { Icon, Input } from 'native-base';
-import { autreDestinationSelector, autrePickupSelector, corporateSelector, destinationSelector, pickupSelector, routeSelector } from '../store/selectors/appSelectors';
+import { autreDestinationSelector, autrePickupSelector, corporateSelector, destinationSelector, modeSelector, pickupSelector, routeSelector } from '../store/selectors/appSelectors';
 import Header from '../components/Header';
 import useFetch from '../hooks/useFetch';
 import Skeletons from '../components/Skeletons';
@@ -17,11 +17,13 @@ import fetchApi from '../helpers/fetchApi';
 export default function PickUpScreen() {
           const pickUpRef = useRef(null)
           const destinationRef = useRef(null)
+          const typeRef = useRef(null)
 
           const [loading, setLoading] = useState(false)
           const navigation = useNavigation()
           const dispatch = useDispatch()
           const route = useRoute()
+          const selectedMode = useSelector(modeSelector)
           
           useFocusEffect(useCallback(() => {
                     dispatch(setRouteAction(route.name))
@@ -35,8 +37,15 @@ export default function PickUpScreen() {
 
           const [loadingPickup, pickups] = useFetch(`/pick_up/${selectedCorporate?.ID_CORPORATE}?limit=20`)
           const [loadingDestinations, destinations] = useFetch(`/destination/${selectedCorporate?.ID_CORPORATE}?limit=20`)
+          const [loadingMode, modes] = useFetch("/mode")
 
           const routeName = useSelector(routeSelector)
+
+          useEffect(() => {
+               if(selectedMode == null) {
+                         dispatch(setModeAction(modes.find(mode => mode.ID_MODE == 1)))
+               }
+          }, [modes])
 
           const onAutrePickupChange = (pickup) => {
                     dispatch(setAutrePickupAction(pickup))
@@ -222,6 +231,28 @@ export default function PickUpScreen() {
                     )
           }
 
+          const ModeModalaze = () =>{
+               const dispatch = useDispatch()
+               const onTypeSelect = (mode) => {
+                    typeRef.current.close()
+                    dispatch(setModeAction(mode))
+               }
+
+               return(
+                    <View style={styles.modalContent}>
+                         <View style={styles.modalList}>
+                             {modes.map(mode => <TouchableNativeFeedback onPress={() => onTypeSelect(mode)} key={mode.ID_MODE.toString()}>
+                                   <View style={styles.modalItem}>
+                                       {selectedMode?.ID_MODE == mode.ID_MODE ? <MaterialCommunityIcons name="radiobox-marked" size={24} color="#007bff" />:
+                                        <MaterialCommunityIcons name="radiobox-blank" size={24} color="#777" />}
+                                        <Text numberOfLines={1} style={styles.modalText}>{mode.MODE_COURSE}</Text>
+                                   </View>
+                              </TouchableNativeFeedback>)}
+                         </View>
+                    </View>
+               )
+          }
+
           const getPickupLabel = () => {
                     if(selectedPickup?.DESCRIPTION) {
                               return selectedPickup.DESCRIPTION
@@ -287,6 +318,18 @@ export default function PickUpScreen() {
                                                             maxHeight={150}
                                                   />}
                                         </View>
+                                        <View style={styles.formGroup}>
+                                                  <Text style={styles.title}>
+                                                            Mode
+                                                  </Text>
+                                             <TouchableOpacity onPress={() => typeRef.current.open()} style={styles.openModalize}>
+                                                  <Text style={styles.openModalizeLabel} numberOfLines={1}>
+                                                       {selectedMode?.MODE_COURSE ?? "Sélectionner la réponse"}
+                                                  </Text>
+                                                  <AntDesign name="caretdown" size={16} color="#777" />
+                                             </TouchableOpacity>
+                                        </View>
+
                               </View>
                     </View>
                     <Portal>
@@ -298,6 +341,11 @@ export default function PickUpScreen() {
                               <Modalize ref={destinationRef} handleStyle={{ display: 'none' }} modalStyle={{borderTopRightRadius: 20, borderTopLeftRadius: 20}}>
                                         <DestinationModalize />
                               </Modalize>
+                    </Portal>
+                    <Portal>
+                         <Modalize ref={typeRef} handleStyle={{ display: 'none' }} modalStyle={{borderTopRightRadius: 20, borderTopLeftRadius: 20}}>
+                              <ModeModalaze/>
+                         </Modalize>
                     </Portal>
                     </>
           )

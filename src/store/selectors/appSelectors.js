@@ -30,3 +30,4 @@ export const dateDebutSelector = ({ app }) => app.dateDebut
 export const numeroCourseSelector = ({ app }) => app.numeroCourse
 export const timeSelector = ({ app }) => app.time
 export const autreNumeroSelector = ({app}) => app.auteNumero
+export const modeSelector = ({ app }) => app.mode

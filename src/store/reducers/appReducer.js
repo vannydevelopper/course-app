@@ -31,6 +31,7 @@ export const SET_NUMERO_COURSE = "SET_NUMERO_COURSE"
 export const RESET = "RESET"
 export const SET_PUSH_NOTIFICATION_TOKEN = 'SET_PUSH_NOTIFICATION_TOKEN'
 export const SET_AUTRE_NUMERO = 'SET_AUTRE_NUMERO'
+export const SET_MODE = "SET_MODE"
 
 const initials = {
           route: 'DeclarationType',
@@ -64,7 +65,8 @@ const initials = {
           dateDebut: null,
           time: null,
           numeroCourse: '',
-          autreNumero:null,
+          autreNumero:'',
+          mode: null,
           
 }
 export default function appReducer(app = initials, action) {
@@ -133,6 +135,8 @@ export default function appReducer(app = initials, action) {
                               return {...app, numeroCourse: action.payload}
                     case SET_AUTRE_NUMERO:
                               return {...app, autreNumero: action.payload}
+                    case SET_MODE:
+                              return {...app, mode: action.payload}
                     case RESET:
                               return initials
                     default:
