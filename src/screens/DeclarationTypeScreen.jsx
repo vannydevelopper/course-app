@@ -34,7 +34,11 @@ export default function DeclarationTypeScreen() {
           const selectedRaison = useSelector(raisonSelector)
           const autreNumero = useSelector(autreNumeroSelector)
 
+          
           const routeName = useSelector(routeSelector)
+
+          // console.log(autreNumero)
+
           
           useFocusEffect(useCallback(() => {
                     dispatch(setRouteAction(route.name))
@@ -330,8 +334,8 @@ export default function DeclarationTypeScreen() {
                                                        placeholder="Numero de l'employé"
                                                        size="lg"
                                                        borderRadius={10}
-                                                       // value={autreNumero}
-                                                       // onChangeText={onAutreNumeroChange}
+                                                       value={autreNumero}
+                                                       onChangeText={onAutreNumeroChange}
                                                        keyboardType="number-pad"
                                                        py={3}
                                                        mt={3}
