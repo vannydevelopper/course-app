@@ -41,7 +41,9 @@ import {
           stickyHeaderSelector,
           timeSelector,
           typeIncidentSelector,
-          typeSelector 
+          typeSelector,
+          modeSelector ,
+          autreNumeroSelector
 } from '../store/selectors/appSelectors';
 import ConfirmScreen from '../screens/ConfirmScreen';
 import { Button, useToast } from 'native-base';
@@ -115,6 +117,8 @@ export default function RootNavigator() {
           const dateDebut= useSelector(dateDebutSelector)
           const time = useSelector(timeSelector)
           const numeroCourse = useSelector(numeroCourseSelector)
+          const selectedMode = useSelector(modeSelector)
+          const autreNumero = useSelector(autreNumeroSelector)
           const toast = useToast()
 
           const onNextPress = async () => {
@@ -175,6 +179,7 @@ export default function RootNavigator() {
                                                             AUTRE_PICKUP: selectedPickup == 'autre' ? autrePickup : null,
                                                             DESTINATION_ID: selectedDestination != 'autre' ? selectedDestination.DESTINATION_ID : selectedDestination,
                                                             AUTRE_DESTINATION: selectedDestination == 'autre' ? autreDestination : null,
+                                                            ID_MODE: selectedMode.ID_MODE,
                                                             IS_INCIDENT: selectedIncident == true,
                                                             TYPE_INCIDENT_ID: getIncidentId(),
                                                             AUTRE_INCIDENT: typeIncident == 'autre' ? autreIncident : null,
@@ -196,7 +201,7 @@ export default function RootNavigator() {
                                                             ANNULE_PAR: selectedType.TYPE_DECLARATION_ID == 2 ? annulerPar : null,
                                                             TIME_SPENT: duree,
                                                             KM_SPENT: kilometre,
-                                                            
+                                                            NUM_EMPLOYE: autreNumero,
                                                             MONTANT: montant,
                                                             NUMERO_COURSE: selectedType.TYPE_DECLARATION_ID == 2 ? null : numeroCourse,
                                                             LATITUDE: location.coords.latitude,
