@@ -253,6 +253,9 @@ export default function RootNavigator() {
                                                             if(autreClient && autreClient != '' /* && selectedAgence */) {
                                                                       return true
                                                             }
+                                                            if(autreNumero && autreNumero !=''){
+                                                                 return true
+                                                            }
                                                   } else if(selectedClient == 'covoiturage') {
                                                             if(covoiturage && covoiturage != '') {
                                                                       return true
