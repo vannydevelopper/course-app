@@ -32,6 +32,7 @@ export const RESET = "RESET"
 export const SET_PUSH_NOTIFICATION_TOKEN = 'SET_PUSH_NOTIFICATION_TOKEN'
 export const SET_AUTRE_NUMERO = 'SET_AUTRE_NUMERO'
 export const SET_MODE = "SET_MODE"
+export const SET_ERRORS = "SET_ERRORS"
 
 const initials = {
           route: 'DeclarationType',
@@ -67,7 +68,7 @@ const initials = {
           numeroCourse: '',
           autreNumero:'',
           mode: null,
-          
+          errors: {}
 }
 export default function appReducer(app = initials, action) {
           switch (action.type) {
@@ -137,6 +138,8 @@ export default function appReducer(app = initials, action) {
                               return {...app, autreNumero: action.payload}
                     case SET_MODE:
                               return {...app, mode: action.payload}
+                    case SET_ERRORS:
+                              return {...app, errors: action.payload}
                     case RESET:
                               return initials
                     default:

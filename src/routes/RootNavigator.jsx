@@ -54,7 +54,7 @@ import { userSelector } from '../store/selectors/userSelector';
 import { unsetUserAction } from '../store/actions/userActions';
 import Header from '../components/Header';
 import IncidentScreen from '../screens/IncidentScreen';
-import { resetAction, setLoadingAction } from '../store/actions/appActions';
+import { resetAction, setErrorsAcion, setLoadingAction } from '../store/actions/appActions';
 import fetchApi from '../helpers/fetchApi';
 import HistoryScreen from '../screens/HistoryScreen';
 import AnnulerScreen from '../screens/AnnulerScreen';
@@ -239,8 +239,11 @@ export default function RootNavigator() {
                                         navigation.navigate('Success')
                               } catch (error) {
                                         console.log(error)
+                                        if(error.errors) {
+                                                  dispatch(setErrorsAcion(error.errors))
+                                        }
                                         toast.show({
-                                                  title: "Course non ajoutée, réessayer",
+                                                  title: error.errors ? 'Client existe déjà' : "Course non ajoutée, réessayer",
                                                   placement: "bottom",
                                                   status: 'error',
                                                   duration: 2000,

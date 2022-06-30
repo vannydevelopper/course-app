@@ -31,3 +31,4 @@ export const numeroCourseSelector = ({ app }) => app.numeroCourse
 export const timeSelector = ({ app }) => app.time
 export const autreNumeroSelector = ({app}) => app.autreNumero
 export const modeSelector = ({ app }) => app.mode
+export const errorsSelector = ({ app }) => app.errors
