@@ -41,11 +41,11 @@ export default function PickUpScreen() {
 
           const routeName = useSelector(routeSelector)
 
-          useEffect(() => {
-               if(selectedMode == null) {
-                         dispatch(setModeAction(modes.find(mode => mode.ID_MODE == 1)))
-               }
-          }, [modes])
+          // useEffect(() => {
+          //      if(selectedMode == null) {
+          //                dispatch(setModeAction(modes.find(mode => mode.ID_MODE == 1)))
+          //      }
+          // }, [modes])
 
           const onAutrePickupChange = (pickup) => {
                     dispatch(setAutrePickupAction(pickup))
