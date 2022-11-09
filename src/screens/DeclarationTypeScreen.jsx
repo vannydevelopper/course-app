@@ -316,9 +316,9 @@ export default function DeclarationTypeScreen() {
                                                             <Text style={styles.openModalizeLabel} numberOfLines={1}>
                                                                       {getSelectedClientLabel()}
                                                             </Text>
-                                                            <AntDesign name="caretdown" size={16} color="#777" />
+                                                            <AntDesign name="caretdown" size={16} color="#77autre7" />
                                                   </TouchableOpacity>
-                                                  {selectedClient == 'autre' &&
+                                                  {selectedClient == '' &&
                                                   <FormControl isRequired isInvalid={errors.numero}>
                                                             <Input
                                                                       placeholder="Nom et prénom de l'employé"
